@@ -1,0 +1,12 @@
+D:\Program Files\source\repos\TTicket\TTicket.Models\bin\Debug\net6.0\TTicket.Models.deps.json
+D:\Program Files\source\repos\TTicket\TTicket.Models\bin\Debug\net6.0\TTicket.Models.dll
+D:\Program Files\source\repos\TTicket\TTicket.Models\bin\Debug\net6.0\TTicket.Models.pdb
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.csproj.AssemblyReference.cache
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.GeneratedMSBuildEditorConfig.editorconfig
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.AssemblyInfoInputs.cache
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.AssemblyInfo.cs
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.csproj.CoreCompileInputs.cache
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.dll
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\refint\TTicket.Models.dll
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\TTicket.Models.pdb
+D:\Program Files\source\repos\TTicket\TTicket.Models\obj\Debug\net6.0\ref\TTicket.Models.dll

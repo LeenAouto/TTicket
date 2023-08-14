@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "TTicket.Security/1.0.0": {
+        "runtime": {
+          "TTicket.Security.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TTicket.Security/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
