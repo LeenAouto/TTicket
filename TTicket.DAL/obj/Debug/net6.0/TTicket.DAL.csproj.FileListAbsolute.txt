@@ -17,3 +17,5 @@ D:\Program Files\source\repos\TTicket\TTicket.DAL\obj\Debug\net6.0\refint\TTicke
 D:\Program Files\source\repos\TTicket\TTicket.DAL\obj\Debug\net6.0\TTicket.DAL.pdb
 D:\Program Files\source\repos\TTicket\TTicket.DAL\obj\Debug\net6.0\TTicket.DAL.genruntimeconfig.cache
 D:\Program Files\source\repos\TTicket\TTicket.DAL\obj\Debug\net6.0\ref\TTicket.DAL.dll
+D:\Program Files\source\repos\TTicket\TTicket.DAL\bin\Debug\net6.0\TTicket.Settings.dll
+D:\Program Files\source\repos\TTicket\TTicket.DAL\bin\Debug\net6.0\TTicket.Settings.pdb

@@ -41,7 +41,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Attachment");
+                    b.ToTable("Attachment", (string)null);
                 });
 
             modelBuilder.Entity("TTicket.Models.Comment", b =>
@@ -70,7 +70,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("TTicket.Models.Product", b =>
@@ -86,7 +86,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Product");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("TTicket.Models.Ticket", b =>
@@ -131,7 +131,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasIndex("SupportId");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Ticket", (string)null);
                 });
 
             modelBuilder.Entity("TTicket.Models.User", b =>
@@ -179,7 +179,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
 
                     b.HasData(
                         new

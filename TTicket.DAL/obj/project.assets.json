@@ -1175,6 +1175,16 @@
         "runtime": {
           "bin/placeholder/TTicket.Security.dll": {}
         }
+      },
+      "TTicket.Settings/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/TTicket.Settings.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TTicket.Settings.dll": {}
+        }
       }
     }
   },
@@ -3530,6 +3540,11 @@
       "type": "project",
       "path": "../TTicket.Security/TTicket.Security.csproj",
       "msbuildProject": "../TTicket.Security/TTicket.Security.csproj"
+    },
+    "TTicket.Settings/1.0.0": {
+      "type": "project",
+      "path": "../TTicket.Settings/TTicket.Settings.csproj",
+      "msbuildProject": "../TTicket.Settings/TTicket.Settings.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3539,7 +3554,8 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 7.0.10",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.10",
       "TTicket.Models >= 1.0.0",
-      "TTicket.Security >= 1.0.0"
+      "TTicket.Security >= 1.0.0",
+      "TTicket.Settings >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3574,6 +3590,9 @@
             },
             "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj": {
               "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj"
+            },
+            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
+              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj"
             }
           }
         }

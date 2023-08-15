@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
@@ -21,16 +29,14 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Controllers\" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TTicket.DAL\TTicket.DAL.csproj" />
 	  <ProjectReference Include="..\TTicket.Models\TTicket.Models.csproj" />
 	  <ProjectReference Include="..\TTicket.Security\TTicket.Security.csproj" />
+	  <ProjectReference Include="..\TTicket.Settings\TTicket.Settings.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.WebApi", "TTicket.WebApi\TTicket.WebApi.csproj", "{2E867CE2-D942-460D-A7CD-03FA15E2AB71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TTicket.WebApi", "TTicket.WebApi\TTicket.WebApi.csproj", "{2E867CE2-D942-460D-A7CD-03FA15E2AB71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.DAL", "TTicket.DAL\TTicket.DAL.csproj", "{B5ECE3C2-037E-46FD-A217-C663C7D77D6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TTicket.DAL", "TTicket.DAL\TTicket.DAL.csproj", "{B5ECE3C2-037E-46FD-A217-C663C7D77D6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.Security", "TTicket.Security\TTicket.Security.csproj", "{7CF12408-224E-4D91-BF6C-2C470DC2F822}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TTicket.Security", "TTicket.Security\TTicket.Security.csproj", "{7CF12408-224E-4D91-BF6C-2C470DC2F822}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.Models", "TTicket.Models\TTicket.Models.csproj", "{386E8689-171E-4D0A-AF4D-BC78F53D973D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TTicket.Models", "TTicket.Models\TTicket.Models.csproj", "{386E8689-171E-4D0A-AF4D-BC78F53D973D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TTicket.Helpers", "TTicket.Helpers\TTicket.Helpers.csproj", "{CDB1726D-B756-45CE-829D-A6C0C46F216D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.Settings", "TTicket.Settings\TTicket.Settings.csproj", "{4A7B0DA9-E147-43D7-AAFE-8BEBC7EAFC23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTicket.Services", "TTicket.Services\TTicket.Services.csproj", "{15F27C67-9CFB-4F5D-8913-28A1DAF8CC7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,18 @@ Global
 		{386E8689-171E-4D0A-AF4D-BC78F53D973D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{386E8689-171E-4D0A-AF4D-BC78F53D973D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{386E8689-171E-4D0A-AF4D-BC78F53D973D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDB1726D-B756-45CE-829D-A6C0C46F216D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDB1726D-B756-45CE-829D-A6C0C46F216D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDB1726D-B756-45CE-829D-A6C0C46F216D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDB1726D-B756-45CE-829D-A6C0C46F216D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A7B0DA9-E147-43D7-AAFE-8BEBC7EAFC23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A7B0DA9-E147-43D7-AAFE-8BEBC7EAFC23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A7B0DA9-E147-43D7-AAFE-8BEBC7EAFC23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A7B0DA9-E147-43D7-AAFE-8BEBC7EAFC23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15F27C67-9CFB-4F5D-8913-28A1DAF8CC7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15F27C67-9CFB-4F5D-8913-28A1DAF8CC7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15F27C67-9CFB-4F5D-8913-28A1DAF8CC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15F27C67-9CFB-4F5D-8913-28A1DAF8CC7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

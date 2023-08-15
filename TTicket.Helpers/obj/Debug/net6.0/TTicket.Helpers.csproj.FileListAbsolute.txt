@@ -1,0 +1,12 @@
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\bin\Debug\net6.0\TTicket.Helpers.deps.json
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\bin\Debug\net6.0\TTicket.Helpers.dll
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\bin\Debug\net6.0\TTicket.Helpers.pdb
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.csproj.AssemblyReference.cache
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.GeneratedMSBuildEditorConfig.editorconfig
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.AssemblyInfoInputs.cache
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.AssemblyInfo.cs
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.csproj.CoreCompileInputs.cache
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.dll
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\refint\TTicket.Helpers.dll
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\TTicket.Helpers.pdb
+D:\Program Files\source\repos\TTicket\TTicket.Helpers\obj\Debug\net6.0\ref\TTicket.Helpers.dll

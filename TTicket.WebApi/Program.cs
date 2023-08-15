@@ -1,7 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Text;
 using TTicket.DAL;
 using TTicket.Security;
 using TTicket.Security.Interfaces;
+using TTicket.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +17,38 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+//Adding Serilog
+Log.Logger = new LoggerConfiguration().
+    ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
 
+builder.Host.UseSerilog();
+
+//Adding CORS
+builder.Services.AddCors();
+
+//Adding JWT
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(o =>
+    {
+        o.RequireHttpsMetadata = false;
+        o.SaveToken = false;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+        };
+    });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,6 +65,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//Adding CORS
+app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.UseAuthorization();
 
