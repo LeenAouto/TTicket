@@ -4265,15 +4265,27 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
+      "TTicket.Abstractions/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "TTicket.Models": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/TTicket.Abstractions.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TTicket.Abstractions.dll": {}
+        }
+      },
       "TTicket.DAL/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "7.0.10",
           "Microsoft.EntityFrameworkCore.SqlServer": "7.0.10",
-          "TTicket.Models": "1.0.0",
-          "TTicket.Security": "1.0.0",
-          "TTicket.Settings": "1.0.0"
+          "TTicket.Abstractions": "1.0.0",
+          "TTicket.Models": "1.0.0"
         },
         "compile": {
           "bin/placeholder/TTicket.DAL.dll": {}
@@ -4295,21 +4307,16 @@
       "TTicket.Security/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "TTicket.Abstractions": "1.0.0",
+          "TTicket.DAL": "1.0.0",
+          "TTicket.Models": "1.0.0"
+        },
         "compile": {
           "bin/placeholder/TTicket.Security.dll": {}
         },
         "runtime": {
           "bin/placeholder/TTicket.Security.dll": {}
-        }
-      },
-      "TTicket.Settings/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v6.0",
-        "compile": {
-          "bin/placeholder/TTicket.Settings.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TTicket.Settings.dll": {}
         }
       }
     }
@@ -12071,6 +12078,11 @@
         "system.xml.xdocument.nuspec"
       ]
     },
+    "TTicket.Abstractions/1.0.0": {
+      "type": "project",
+      "path": "../TTicket.Abstractions/TTicket.Abstractions.csproj",
+      "msbuildProject": "../TTicket.Abstractions/TTicket.Abstractions.csproj"
+    },
     "TTicket.DAL/1.0.0": {
       "type": "project",
       "path": "../TTicket.DAL/TTicket.DAL.csproj",
@@ -12085,11 +12097,6 @@
       "type": "project",
       "path": "../TTicket.Security/TTicket.Security.csproj",
       "msbuildProject": "../TTicket.Security/TTicket.Security.csproj"
-    },
-    "TTicket.Settings/1.0.0": {
-      "type": "project",
-      "path": "../TTicket.Settings/TTicket.Settings.csproj",
-      "msbuildProject": "../TTicket.Settings/TTicket.Settings.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -12108,10 +12115,10 @@
       "Serilog.Sinks.File >= 5.0.0",
       "Swashbuckle.AspNetCore >= 6.2.3",
       "System.IdentityModel.Tokens.Jwt >= 6.32.1",
+      "TTicket.Abstractions >= 1.0.0",
       "TTicket.DAL >= 1.0.0",
       "TTicket.Models >= 1.0.0",
-      "TTicket.Security >= 1.0.0",
-      "TTicket.Settings >= 1.0.0"
+      "TTicket.Security >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -12142,6 +12149,9 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
+            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj"
+            },
             "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj": {
               "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj"
             },
@@ -12150,9 +12160,6 @@
             },
             "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj": {
               "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj"
-            },
-            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
-              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj"
             }
           }
         }

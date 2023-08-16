@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "VZ7Abn/v1cYapxJWgAycLbDtHGKFm8E46dYCY522pwM=",
+  "Source": "TTicket.WebApi",
+  "BasePath": "_content/TTicket.WebApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

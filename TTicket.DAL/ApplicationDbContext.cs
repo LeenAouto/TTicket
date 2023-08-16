@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TTicket.Abstractions.Security;
 using TTicket.Models;
-using TTicket.Security.Interfaces;
 
 namespace TTicket.DAL
 {

@@ -3,29 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
+using TTicket.Abstractions.DAL;
+using TTicket.Abstractions.Security;
 using TTicket.DAL;
+using TTicket.DAL.Managers;
 using TTicket.Security;
-using TTicket.Security.Interfaces;
-using TTicket.Settings;
+using TTicket.Security.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-
-//Adding Serilog
-Log.Logger = new LoggerConfiguration().
-    ReadFrom.Configuration(builder.Configuration)
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-//Adding CORS
-builder.Services.AddCors();
 
 //Adding JWT
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
@@ -50,6 +37,28 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+//Adding Serilog
+Log.Logger = new LoggerConfiguration().
+    ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+//Adding CORS
+builder.Services.AddCors();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
+
+builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddScoped<ITicketManager, TicketManager>();
+builder.Services.AddScoped<ICommentManager, CommentManager>();
+builder.Services.AddScoped<IAttachmentManager, AttachmentManager>();
+builder.Services.AddScoped<IProductManager, ProductManager>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -68,6 +77,8 @@ app.UseHttpsRedirection();
 
 //Adding CORS
 app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

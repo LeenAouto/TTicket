@@ -4,6 +4,65 @@
     "D:\\Program Files\\source\\repos\\TTicket\\TTicket.WebApi\\TTicket.WebApi.csproj": {}
   },
   "projects": {
+    "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj",
+        "projectName": "TTicket.Abstractions",
+        "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj",
+        "packagesPath": "C:\\Users\\leen_\\.nuget\\packages\\",
+        "outputPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\leen_\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.304\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
     "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -28,14 +87,11 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj"
+              },
               "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj": {
                 "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj"
-              },
-              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj": {
-                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj"
-              },
-              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
-                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj"
               }
             }
           }
@@ -169,62 +225,17 @@
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
-            "projectReferences": {}
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        }
-      },
-      "frameworks": {
-        "net6.0": {
-          "targetAlias": "net6.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
+            "projectReferences": {
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj"
+              },
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj"
+              },
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj"
+              }
             }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.304\\RuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj",
-        "projectName": "TTicket.Settings",
-        "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj",
-        "packagesPath": "C:\\Users\\leen_\\.nuget\\packages\\",
-        "outputPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\leen_\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net6.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net6.0": {
-            "targetAlias": "net6.0",
-            "projectReferences": {}
           }
         },
         "warningProperties": {
@@ -281,6 +292,9 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
+              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj"
+              },
               "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj": {
                 "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj"
               },
@@ -289,9 +303,6 @@
               },
               "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj": {
                 "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj"
-              },
-              "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
-                "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj"
               }
             }
           }

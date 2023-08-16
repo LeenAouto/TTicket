@@ -1156,6 +1156,19 @@
           }
         }
       },
+      "TTicket.Abstractions/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "TTicket.Models": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/TTicket.Abstractions.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TTicket.Abstractions.dll": {}
+        }
+      },
       "TTicket.Models/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
@@ -1164,26 +1177,6 @@
         },
         "runtime": {
           "bin/placeholder/TTicket.Models.dll": {}
-        }
-      },
-      "TTicket.Security/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v6.0",
-        "compile": {
-          "bin/placeholder/TTicket.Security.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TTicket.Security.dll": {}
-        }
-      },
-      "TTicket.Settings/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v6.0",
-        "compile": {
-          "bin/placeholder/TTicket.Settings.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TTicket.Settings.dll": {}
         }
       }
     }
@@ -3531,20 +3524,15 @@
         "version.txt"
       ]
     },
+    "TTicket.Abstractions/1.0.0": {
+      "type": "project",
+      "path": "../TTicket.Abstractions/TTicket.Abstractions.csproj",
+      "msbuildProject": "../TTicket.Abstractions/TTicket.Abstractions.csproj"
+    },
     "TTicket.Models/1.0.0": {
       "type": "project",
       "path": "../TTicket.Models/TTicket.Models.csproj",
       "msbuildProject": "../TTicket.Models/TTicket.Models.csproj"
-    },
-    "TTicket.Security/1.0.0": {
-      "type": "project",
-      "path": "../TTicket.Security/TTicket.Security.csproj",
-      "msbuildProject": "../TTicket.Security/TTicket.Security.csproj"
-    },
-    "TTicket.Settings/1.0.0": {
-      "type": "project",
-      "path": "../TTicket.Settings/TTicket.Settings.csproj",
-      "msbuildProject": "../TTicket.Settings/TTicket.Settings.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3553,9 +3541,8 @@
       "Microsoft.EntityFrameworkCore.Design >= 7.0.10",
       "Microsoft.EntityFrameworkCore.SqlServer >= 7.0.10",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.10",
-      "TTicket.Models >= 1.0.0",
-      "TTicket.Security >= 1.0.0",
-      "TTicket.Settings >= 1.0.0"
+      "TTicket.Abstractions >= 1.0.0",
+      "TTicket.Models >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3585,14 +3572,11 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
+            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj": {
+              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Abstractions\\TTicket.Abstractions.csproj"
+            },
             "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj": {
               "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj"
-            },
-            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj": {
-              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Security\\TTicket.Security.csproj"
-            },
-            "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj": {
-              "projectPath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Settings\\TTicket.Settings.csproj"
             }
           }
         }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
-using TTicket.DAL.Interfaces;
+using TTicket.Abstractions.DAL;
 using TTicket.Models;
 
 namespace TTicket.DAL.Managers
@@ -101,7 +101,5 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-
-        
     }
 }

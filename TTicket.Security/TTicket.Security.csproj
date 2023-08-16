@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+	 <ProjectReference Include="..\TTicket.Abstractions\TTicket.Abstractions.csproj" />
+	 <ProjectReference Include="..\TTicket.DAL\TTicket.DAL.csproj" />
+    <ProjectReference Include="..\TTicket.Models\TTicket.Models.csproj" />
+  </ItemGroup>
+
 </Project>

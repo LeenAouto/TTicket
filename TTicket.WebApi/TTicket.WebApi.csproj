@@ -33,10 +33,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\TTicket.Abstractions\TTicket.Abstractions.csproj" />
 	  <ProjectReference Include="..\TTicket.DAL\TTicket.DAL.csproj" />
 	  <ProjectReference Include="..\TTicket.Models\TTicket.Models.csproj" />
 	  <ProjectReference Include="..\TTicket.Security\TTicket.Security.csproj" />
-	  <ProjectReference Include="..\TTicket.Settings\TTicket.Settings.csproj" />
 	</ItemGroup>
 
 </Project>

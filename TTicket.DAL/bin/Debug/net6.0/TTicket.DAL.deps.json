@@ -12,9 +12,8 @@
           "Microsoft.EntityFrameworkCore.Design": "7.0.10",
           "Microsoft.EntityFrameworkCore.SqlServer": "7.0.10",
           "Microsoft.EntityFrameworkCore.Tools": "7.0.10",
-          "TTicket.Models": "1.0.0",
-          "TTicket.Security": "1.0.0",
-          "TTicket.Settings": "1.0.0"
+          "TTicket.Abstractions": "1.0.0",
+          "TTicket.Models": "1.0.0"
         },
         "runtime": {
           "TTicket.DAL.dll": {}
@@ -703,19 +702,17 @@
           }
         }
       },
+      "TTicket.Abstractions/1.0.0": {
+        "dependencies": {
+          "TTicket.Models": "1.0.0"
+        },
+        "runtime": {
+          "TTicket.Abstractions.dll": {}
+        }
+      },
       "TTicket.Models/1.0.0": {
         "runtime": {
           "TTicket.Models.dll": {}
-        }
-      },
-      "TTicket.Security/1.0.0": {
-        "runtime": {
-          "TTicket.Security.dll": {}
-        }
-      },
-      "TTicket.Settings/1.0.0": {
-        "runtime": {
-          "TTicket.Settings.dll": {}
         }
       }
     }
@@ -1202,17 +1199,12 @@
       "path": "system.windows.extensions/5.0.0",
       "hashPath": "system.windows.extensions.5.0.0.nupkg.sha512"
     },
+    "TTicket.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
     "TTicket.Models/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "TTicket.Security/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "TTicket.Settings/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

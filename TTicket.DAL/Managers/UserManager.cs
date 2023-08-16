@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Sockets;
-using TTicket.DAL.Interfaces;
+using TTicket.Abstractions.DAL;
 using TTicket.Models;
-using TTicket.Models.UserManagementModels;
-using TTicket.Settings;
 
 namespace TTicket.DAL.Managers
 {
@@ -150,6 +146,32 @@ namespace TTicket.DAL.Managers
             try
             {
                 return await _context.User.AnyAsync(u => u.Id == id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<bool> IsClient(Guid id)
+        {
+            try
+            {
+                return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Client);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<bool> IsSupport(Guid id)
+        {
+            try
+            {
+                return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Support);
             }
             catch (Exception e)
             {

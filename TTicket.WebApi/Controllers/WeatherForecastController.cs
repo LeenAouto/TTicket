@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using TTicket.DAL.Interfaces;
+using TTicket.Abstractions.DAL;
 
 namespace TTicket.Controllers
 {

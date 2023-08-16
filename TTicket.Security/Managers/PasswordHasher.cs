@@ -1,5 +1,5 @@
-﻿using TTicket.Security.Interfaces;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
+using TTicket.Abstractions.Security;
 
 namespace TTicket.Security
 {
