@@ -2,6 +2,9 @@
 using TTicket.Abstractions.DAL;
 using TTicket.Models.DTOs;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
+using System.Xml.Linq;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -23,16 +26,18 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetComments")]
+        public async Task<IActionResult> GetAll([FromQuery] CommentListRequestModel model)
         {
             try
             {
-                var comments = await _commentManager.GetAll();
+                var comments = await _commentManager.GetList(model);
                 if (!comments.Any())
-                    return NotFound($"No comments were found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.CommentsNotFound,
+                        $"No comments were found"));
 
-                return Ok(comments);
+                return Ok(new Response<IEnumerable<Comment>>(comments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -48,51 +53,11 @@ namespace TTicket.WebApi.Controllers
             {
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
-                    return NotFound($"No comment with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.CommentsNotFound,
+                        $"No comment was found"));
 
-                return Ok(comment);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByUserId/{id}")]
-        public async Task<IActionResult> GetByUserId(Guid id)
-        {
-            try
-            {
-                if (!await _userManager.IsValidUserId(id))
-                    return NotFound($"Invalid user id");
-
-                var comments = await _commentManager.GetByUserId(id);
-                if (!comments.Any())
-                    return NotFound($"No comments were found");
-
-                return Ok(comments);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByTicketId/{id}")]
-        public async Task<IActionResult> GetByTicketId(Guid id)
-        {
-            try
-            {
-                if (!await _ticketManager.IsValidTicketId(id))
-                    return NotFound($"Invalid ticket id");
-
-                var comments = await _commentManager.GetByTicketId(id);
-                if (!comments.Any())
-                    return NotFound($"No comments were found");
-
-                return Ok(comments);
+                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -106,13 +71,20 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                if (!await _userManager.IsValidUserId(dto.UserId))
-                    return BadRequest($"Invalid user id");
-                if (!await _ticketManager.IsValidTicketId(dto.TicketId))
-                    return BadRequest($"Invalid ticket id");
+                if (await _userManager.Get(new UserRequestModel { Id = dto.UserId}) == null)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.UserNotFound,
+                        $"The user was not found"));
+
+                if (await _ticketManager.Get(new TicketRequestModel { Id = dto.TicketId }) == null)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was not found"));
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
-                    return BadRequest($"Comment content is required");
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidCommentContent,
+                        $"Comment content is required"));
 
                 var comment = new Comment
                 {
@@ -123,7 +95,7 @@ namespace TTicket.WebApi.Controllers
                 };
 
                 await _commentManager.Add(comment);
-                return Ok(comment);
+                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -139,15 +111,19 @@ namespace TTicket.WebApi.Controllers
             {
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
-                    return NotFound($"No comment with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.CommentsNotFound,
+                        $"No comment was found"));
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
-                    return BadRequest($"Comment content is required");
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidCommentContent,
+                        $"Comment content is required"));
 
                 comment.Content = dto.Content;
 
                 _commentManager.Update(comment);
-                return Ok(comment);
+                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -163,10 +139,12 @@ namespace TTicket.WebApi.Controllers
             {
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
-                    return NotFound($"No comment with id = {id} was found.");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.CommentsNotFound,
+                        $"No comment was found"));
 
                 _commentManager.Delete(comment);
-                return Ok(comment);
+                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -174,5 +152,49 @@ namespace TTicket.WebApi.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+
+        //[HttpGet("GetByUserId/{id}")]
+        //public async Task<IActionResult> GetByUserId(Guid id)
+        //{
+        //    try
+        //    {
+        //        if (!await _userManager.IsValidUserId(id))
+        //            return NotFound($"Invalid user id");
+
+        //        var comments = await _commentManager.GetByUserId(id);
+        //        if (!comments.Any())
+        //            return NotFound($"No comments were found");
+
+        //        return Ok(comments);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //[HttpGet("GetByTicketId/{id}")]
+        //public async Task<IActionResult> GetByTicketId(Guid id)
+        //{
+        //    try
+        //    {
+        //        if (!await _ticketManager.IsValidTicketId(id))
+        //            return NotFound($"Invalid ticket id");
+
+        //        var comments = await _commentManager.GetByTicketId(id);
+        //        if (!comments.Any())
+        //            return NotFound($"No comments were found");
+
+        //        return Ok(comments);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }

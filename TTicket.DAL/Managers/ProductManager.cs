@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -17,24 +18,30 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Product> Get(Guid id)
-        {
-            try
-            {
-                return await _context.Product.SingleOrDefaultAsync(p => p.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.StackTrace);
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Product>> GetAll()
+        public async Task<Product> Get(ProductRequestModel model)
         {
             try
             {
                 return await _context.Product.
+                    Where(p => p.Id == model.Id || p.Name == model.Name).
+                    FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<Product>> GetList(ProductListRequestModel model)
+        {
+            try
+            {
+                var skip = (model.PageNumber - 1) * model.PageSize;
+                return await _context.Product.
+                    Where(p => p.Name == model.Name || model.Name == null).
+                    Skip(skip).
+                    Take(model.PageSize).
                     OrderBy(p => p.Name).
                     ToListAsync();
             }
@@ -89,17 +96,17 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<bool> IsValidProductId(Guid id)
-        {
-            try
-            {
-                return await _context.Product.AnyAsync(p => p.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
+        //public async Task<bool> IsValidProductId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Product.AnyAsync(p => p.Id == id);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
     }
 }

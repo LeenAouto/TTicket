@@ -11,7 +11,6 @@ namespace TTicket.Models.UserManagementModels
         public string Password { get; set; } = string.Empty;
 
         [Required, StringLength(256)]
-        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required, StringLength(256)]
@@ -30,8 +29,5 @@ namespace TTicket.Models.UserManagementModels
 
         [Required]
         public byte TypeUser { get; set; }
-
-        [Required]
-        public byte StatusUser { get; set; }
     }
 }

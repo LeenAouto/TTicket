@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
+using TTicket.Abstractions.Security;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
+using TTicket.Models.UserManagementModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -16,77 +19,37 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
         
-        public async Task<User> Get(Guid id)
-        {
-            try
-            {
-                return await _context.User.SingleOrDefaultAsync(u => u.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<User> GetByUsername(string username)
-        {
-            try
-            {
-                return await _context.User.SingleOrDefaultAsync(u => u.Username == username);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<User> GetByEmail(string email)
-        {
-            try
-            {
-                return await _context.User.SingleOrDefaultAsync(u => u.Email == email);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<User> GetByMobileNumber(string number)
-        {
-            try
-            {
-                return await _context.User.SingleOrDefaultAsync(u => u.MobilePhone == number);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<User>> GetAll()
-        {
-            try
-            {
-                return await _context.User.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<User>> GetAllByUserType(byte type)
+        public async Task<User> Get(UserRequestModel model)
         {
             try
             {
                 return await _context.User.
-                    Where(u => (byte)u.TypeUser == type).
+                Where(u => (u.Id == model.Id || u.Username == model.Identity || u.Email == model.Identity || u.MobilePhone == model.Identity) 
+                        && (u.TypeUser == model.TypeUser || model.TypeUser == null)).
+                FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+        public async Task<IEnumerable<User>> GetList(UserListRequestModel model)
+        {
+            try
+            {
+                var skip = (model.PageNumber - 1) * model.PageSize;
+                return await _context.User.
+                    Where(u => (u.Username == model.Username || model.Username == null)
+                            && (u.Email == model.Email || model.Email == null)
+                            && (u.MobilePhone == model.MobilePhone || model.MobilePhone == null)
+                            && (u.FirstName == model.FirstName || model.FirstName == null)
+                            && (u.LastName == model.LastName || model.LastName == null)
+                            && (u.TypeUser == model.TypeUser || model.TypeUser == null)
+                            && (u.StatusUser == model.StatusUser || model.StatusUser == null)
+                            ).
+                    Skip(skip).
+                    Take(model.PageSize).
                     ToListAsync();
             }
             catch (Exception e)
@@ -141,43 +104,46 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<bool> IsValidUserId(Guid id)
-        {
-            try
-            {
-                return await _context.User.AnyAsync(u => u.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
 
-        public async Task<bool> IsClient(Guid id)
-        {
-            try
-            {
-                return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Client);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
 
-        public async Task<bool> IsSupport(Guid id)
-        {
-            try
-            {
-                return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Support);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
+
+        //public async Task<bool> IsValidUserId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.User.AnyAsync(u => u.Id == id);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
+
+        //public async Task<bool> IsClient(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Client);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
+
+        //public async Task<bool> IsSupport(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Support);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
     }
 }

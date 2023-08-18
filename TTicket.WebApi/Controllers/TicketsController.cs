@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
-using TTicket.DAL.Managers;
 using TTicket.Models;
 using TTicket.Models.DTOs;
+using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -25,16 +25,18 @@ namespace TTicket.WebApi.Controllers
             _productManager = productManager;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetTickets")]
+        public async Task<IActionResult> GetAll([FromQuery] TicketListRequestModel model)
         {
             try
             {
-                var tickets = await _ticketManager.GetAll();
+                var tickets = await _ticketManager.GetList(model);
                 if (!tickets.Any())
-                    return NotFound($"No tickets were found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketsNotFound,
+                        $"No tickets were found"));
 
-                return Ok(tickets);
+                return Ok(new Response<IEnumerable<Ticket>>(tickets, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -43,104 +45,18 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet("GetTicket")]
+        public async Task<IActionResult> Get([FromQuery] TicketRequestModel model)
         {
             try
             {
-                var ticket = await _ticketManager.Get(id);
+                var ticket = await _ticketManager.Get(model);
                 if (ticket == null)
-                    return NotFound($"No ticket with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
 
-                return Ok(ticket);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByClientId/{id}")]
-        public async Task<IActionResult> GetByClientId(Guid id)
-        {
-            try
-            {
-                if (!await _userManager.IsValidUserId(id))
-                    return NotFound($"Invalid user id");
-                if (!await _userManager.IsClient(id))
-                    return NotFound($"The user is not a client");
-
-                var clientTickets = await _ticketManager.GetByClientId(id);
-                if (!clientTickets.Any())
-                    return NotFound($"No tickets were found");
-
-                return Ok(clientTickets);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetBySupportId/{id}")]
-        public async Task<IActionResult> GetBySupportId(Guid id)
-        {
-            try
-            {
-                if (!await _userManager.IsValidUserId(id))
-                    return NotFound($"Invalid user id");
-                if (!await _userManager.IsSupport(id))
-                    return NotFound($"The user is not a support member");
-
-                var supportTickets = await _ticketManager.GetBySupportId(id);
-                if (!supportTickets.Any())
-                    return NotFound($"No tickets were found");
-
-                return Ok(supportTickets);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByProductId/{id}")]
-        public async Task<IActionResult> GetByProductId(Guid id)
-        {
-            try
-            {
-                if (!await _productManager.IsValidProductId(id))
-                    return NotFound($"Invalid product id");
-
-                var productTickets = await _ticketManager.GetByProductId(id);
-                if (!productTickets.Any())
-                    return NotFound($"No tickets were found");
-
-                return Ok(productTickets);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByStatus/{status}")]
-        public async Task<IActionResult> GetByStatus(byte status)
-        {
-            try
-            {
-                if (!(status >= 1 && status <= 3))
-                    return NotFound($"Invalid status");
-
-                var statusTickets = await _ticketManager.GetByStatus(status);
-                if (!statusTickets.Any())
-                    return NotFound($"No tickets were found");
-
-                return Ok(statusTickets);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -154,13 +70,21 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                if (!await _userManager.IsClient(dto.ClientId))
-                    return BadRequest($"Invalid client user id");
-                if (!await _productManager.IsValidProductId(dto.ProductId))
-                    return BadRequest($"Invalid product id");
+                var request = new UserRequestModel { Id = dto.ClientId, TypeUser = UserType.Client };
+                if (await _userManager.Get(request) == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.UserNotFound,
+                        $"No user was found"));
+
+                if (await _productManager.Get(new ProductRequestModel { Id = dto.ProductId}) == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.ProductNotFound,
+                        $"No product was found"));
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
-                    return BadRequest($"Ticket content is required");
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidTicketContent,
+                        $"Ticket content is required"));
 
                 var ticket = new Ticket
                 {
@@ -175,7 +99,7 @@ namespace TTicket.WebApi.Controllers
                 };
 
                 await _ticketManager.Add(ticket);
-                return Ok(ticket);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -189,22 +113,28 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                var ticket = await _ticketManager.Get(id);
+                var ticket = await _ticketManager.Get(new TicketRequestModel { Id = id });
                 if (ticket == null)
-                    return NotFound($"No ticket with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
 
-                if (!await _productManager.IsValidProductId(dto.ProductId))
-                    return BadRequest($"Invalid product id");
+                if (await _productManager.Get(new ProductRequestModel { Id = dto.ProductId }) == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.ProductNotFound,
+                        $"No product was found"));
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
-                    return BadRequest($"Ticket content is required");
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidTicketContent,
+                        $"Ticket content is required"));
 
                 ticket.ProductId = dto.ProductId;
                 ticket.Content = dto.Content;
                 ticket.UpdatedDate = DateTime.Now;
 
                 _ticketManager.Update(ticket);
-                return Ok(ticket);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -213,25 +143,67 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        [HttpPut("assign/{id}")] //Used by support members
+        [HttpPut("assign/{id}")] //Used by manager
         public async Task<IActionResult> Assign(Guid id, [FromBody] TicketAssignDto dto)
         {
             try
             {
-                var ticket = await _ticketManager.Get(id);
+                var ticket = await _ticketManager.Get(new TicketRequestModel { Id = id });
                 if (ticket == null)
-                    return NotFound($"No ticket with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
 
-                if (!await _userManager.IsValidUserId(dto.SupportId))
-                    return BadRequest($"Invalid user id");
-                if (!await _userManager.IsSupport(dto.SupportId))
-                    return BadRequest($"The user is not a support member");
+                var request = new UserRequestModel { Id = dto.SupportId, TypeUser = UserType.Support };
+                if (await _userManager.Get(request) == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.UserNotFound,
+                        $"No user was found"));
+
+                if (ticket.Status == TicketStatus.Assigned)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.TicketAlreadyAssigned,
+                        $"The ticket is already assigned to support member with id = {ticket.SupportId}"));
+
+                if (ticket.Status == TicketStatus.Closed)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.TicketAlreadyClosed,
+                        $"The ticket is already closed"));
 
                 ticket.SupportId = dto.SupportId;
                 ticket.Status = TicketStatus.Assigned;
 
                 _ticketManager.Update(ticket);
-                return Ok(ticket);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured In Controller.");
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("close/{id}")] //Used by support member
+        public async Task<IActionResult> Close(Guid id)
+        {
+            try
+            {
+                var ticket = await _ticketManager.Get(new TicketRequestModel { Id = id});
+                if (ticket == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
+
+                if ((byte)ticket.Status == 3)
+                    if (ticket.Status == TicketStatus.Closed)
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.TicketAlreadyClosed,
+                            $"The ticket is already closed"));
+
+                ticket.Status = TicketStatus.Closed;
+
+                _ticketManager.Update(ticket);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -245,12 +217,14 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                var ticket = await _ticketManager.Get(id);
+                var ticket = await _ticketManager.Get(new TicketRequestModel { Id = id });
                 if (ticket == null)
-                    return NotFound($"No ticket with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
 
                 _ticketManager.Delete(ticket);
-                return Ok(ticket);
+                return Ok(new Response<Ticket>(ticket, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -270,5 +244,102 @@ namespace TTicket.WebApi.Controllers
             string ticketName = $"Ticket#{year}{month}{day}{randomPart}";
             return ticketName;
         }
+
+
+
+
+        //[HttpGet("GetByClientId/{id}")]
+        //public async Task<IActionResult> GetByClientId(Guid id)
+        //{
+        //    try
+        //    {
+        //        var request = new UserRequestModel { Id = id };
+        //        var user = _userManager.Get(request);
+        //        if (user == null)
+        //            return NotFound($"Invalid user id");
+
+
+        //        if (!await _userManager.IsValidUserId(id))
+        //            return NotFound($"Invalid user id");
+        //        if (!await _userManager.IsClient(id))
+        //            return NotFound($"The user is not a client");
+
+        //        var clientTickets = await _ticketManager.GetByClientId(id);
+        //        if (!clientTickets.Any())
+        //            return NotFound($"No tickets were found");
+
+        //        return Ok(clientTickets);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //[HttpGet("GetBySupportId/{id}")]
+        //public async Task<IActionResult> GetBySupportId(Guid id)
+        //{
+        //    try
+        //    {
+        //        if (!await _userManager.IsValidUserId(id))
+        //            return NotFound($"Invalid user id");
+        //        if (!await _userManager.IsSupport(id))
+        //            return NotFound($"The user is not a support member");
+
+        //        var supportTickets = await _ticketManager.GetBySupportId(id);
+        //        if (!supportTickets.Any())
+        //            return NotFound($"No tickets were found");
+
+        //        return Ok(supportTickets);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //[HttpGet("GetByProductId/{id}")]
+        //public async Task<IActionResult> GetByProductId(Guid id)
+        //{
+        //    try
+        //    {
+        //        if (!await _productManager.IsValidProductId(id))
+        //            return NotFound($"Invalid product id");
+
+        //        var productTickets = await _ticketManager.GetByProductId(id);
+        //        if (!productTickets.Any())
+        //            return NotFound($"No tickets were found");
+
+        //        return Ok(productTickets);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //[HttpGet("GetByStatus/{status}")]
+        //public async Task<IActionResult> GetByStatus(byte status)
+        //{
+        //    try
+        //    {
+        //        if (!(status >= 1 && status <= 3))
+        //            return NotFound($"Invalid status");
+
+        //        var statusTickets = await _ticketManager.GetByStatus(status);
+        //        if (!statusTickets.Any())
+        //            return NotFound($"No tickets were found");
+
+        //        return Ok(statusTickets);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }

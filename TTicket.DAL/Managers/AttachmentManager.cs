@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -16,12 +17,13 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-
-        public async Task<Attachment> Get(Guid id)
+        public async Task<Attachment> Get(AttachmentRequestModel model)
         {
             try
             {
-                return await _context.Attachment.SingleOrDefaultAsync(a => a.Id == id);
+                return await _context.Attachment.
+                    Where(a => a.Id == model.Id || a.FileName == model.FileName).
+                    FirstOrDefaultAsync();
             }
             catch (Exception e)
             {
@@ -30,27 +32,18 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<Attachment>> GetAll()
+        public async Task<IEnumerable<Attachment>> GetList(AttachmentListRequestModel model)
         {
             try
             {
+                var skip = (model.PageNumber - 1) * model.PageSize;
                 return await _context.Attachment.
-                    OrderBy(a => a.Id).
-                    ToListAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Attachment>> GetByAttachedToId(Guid id)
-        {
-            try
-            {
-                return await _context.Attachment.
-                    Where(a => a.AttachedToId == id).
+                    Where(a => (a.AttachedToId == model.AttachedToId || model.AttachedToId == null)
+                            && (a.FileName == model.FileName || model.FileName == null)
+                            && (a.Attacher == model.Attacher || model.Attacher == null)
+                            ).
+                    Skip(skip).
+                    Take(model.PageSize).
                     OrderBy(a => a.Id).
                     ToListAsync();
             }
@@ -106,17 +99,34 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<bool> IsValidAttachmentId(Guid id)
-        {
-            try
-            {
-                return await _context.Attachment.AnyAsync(a => a.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
+        //public async Task<IEnumerable<Attachment>> GetByAttachedToId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Attachment.
+        //            Where(a => a.AttachedToId == id).
+        //            OrderBy(a => a.Id).
+        //            ToListAsync();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
+
+
+        //public async Task<bool> IsValidAttachmentId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Attachment.AnyAsync(a => a.Id == id);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
     }
 }

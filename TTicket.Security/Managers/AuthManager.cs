@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -10,6 +9,7 @@ using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
 using TTicket.DAL.Managers;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
 using TTicket.Models.UserManagementModels;
 using TTicket.Security.Settings;
 
@@ -33,16 +33,22 @@ namespace TTicket.Security
         {
             try
             {
-                if (await _userManager.GetByEmail(model.Email) != null)
-                    return new AuthModel { Message = "Email is already registered" };
+                var request = new UserRequestModel
+                {
+                    Identity = model.Username
+                };
 
-                if (await _userManager.GetByUsername(model.Username) != null)
+                if (await _userManager.Get(request) != null)
                     return new AuthModel { Message = "Username is already registered" };
 
-                if (await _userManager.GetByMobileNumber(model.MobilePhone) != null)
+                request.Identity = model.Email;
+                if (await _userManager.Get(request) != null)
+                    return new AuthModel { Message = "Email is already registered" };
+
+                request.Identity = model.MobilePhone;
+                if (await _userManager.Get(request) != null)
                     return new AuthModel { Message = "The phone number is already used in another account" };
 
-                //TODO: Use automapper here to map ApplicationUser to the RegistrModel
                 var user = new User
                 {
                     Username = model.Username,
@@ -64,8 +70,8 @@ namespace TTicket.Security
                 return new AuthModel
                 {
                     Id = resultUser.Id,
-                    Username = resultUser.Username,
-                    Email = resultUser.Email,
+                    Username = resultUser.Username.ToLower(),
+                    Email = resultUser.Email.ToLower(),
                     MobilePhone = resultUser.MobilePhone,
                     TypeUser = (byte)resultUser.TypeUser,
                     StatusUser = (byte)resultUser.StatusUser,
@@ -87,24 +93,14 @@ namespace TTicket.Security
             try
             {
                 var authModel = new AuthModel();
-                var user = new User();
 
-                if (new EmailAddressAttribute().IsValid(model.Identity))
-                {
-                    user = await _userManager.GetByEmail(model.Identity);
-                }
-                else if (IsValidMobileNumber(model.Identity))
-                {
-                    user = await _userManager.GetByMobileNumber(model.Identity);
-                }
-                else
-                {
-                    user = await _userManager.GetByUsername(model.Identity);
-                }
+                var request = new UserRequestModel { Identity = model.Identity };
+
+                var user = await _userManager.Get(request);
 
                 if (user is null || !_hasher.Verify(user.Password, model.Password))
                 {
-                    authModel.Message = "Email or Password is incorrect!";
+                    authModel.Message = "Incorrect credentials!";
                     return authModel;
                 }
 
@@ -131,23 +127,15 @@ namespace TTicket.Security
             }
         }
 
-        private JwtSecurityToken CreateJwtToken(User user)
+        public bool IsValidUserName(string userName)
         {
-            var userClaims = new List<Claim> {
-                new Claim(ClaimTypes.Name, user.Username)
-            };
+            if(userName.Length < 1)
+                return false;
 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
-            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+            if (!Regex.IsMatch(userName, @"^[a-zA-Z0-9!#$%^&*()_+{}\[\]:;<>,.?~]+$"))
+                return false;
 
-            var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _jwt.Issuer,
-                audience: _jwt.Audience,
-                claims: userClaims,
-                expires: DateTime.Now.AddMinutes(_jwt.DurationInMinutes),
-                signingCredentials: signingCredentials);
-
-            return jwtSecurityToken;
+            return true;
         }
 
         public bool IsValidPassword(string password)
@@ -169,7 +157,39 @@ namespace TTicket.Security
 
         public bool IsValidMobileNumber(string number)
         {
+            if (string.IsNullOrEmpty(number))
+                return false;
+
             return Regex.IsMatch(number, @"^0+5+\d{8}$");
+        }
+
+        public bool IsValidEmailAddress(string emailAddress)
+        {
+            if (string.IsNullOrWhiteSpace(emailAddress))
+                return false;
+
+            string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+
+            return Regex.IsMatch(emailAddress, pattern);
+        }
+
+        private JwtSecurityToken CreateJwtToken(User user)
+        {
+            var userClaims = new List<Claim> {
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
+            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: _jwt.Issuer,
+                audience: _jwt.Audience,
+                claims: userClaims,
+                expires: DateTime.Now.AddMinutes(_jwt.DurationInMinutes),
+                signingCredentials: signingCredentials);
+
+            return jwtSecurityToken;
         }
     }
 }

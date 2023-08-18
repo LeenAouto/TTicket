@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -22,8 +23,8 @@ namespace TTicket.DAL.Managers
             try
             {
                 return await _context.Comment.
-                    Include(c => c.TicketId).
-                    Include(c => c.UserId).
+                    Include(c => c.Ticket).
+                    Include(c => c.User).
                     SingleOrDefaultAsync(c => c.Id == id);
             }
             catch (Exception e)
@@ -33,52 +34,23 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<Comment>> GetAll()
+        public async Task<IEnumerable<Comment>> GetList(CommentListRequestModel model)
         {
             try
             {
+                var skip = (model.PageNumber - 1) * model.PageSize;
 
                 return await _context.Comment.
+                    Where(c => (c.TicketId == model.TicketId || model.TicketId == null)
+                            &&(c.UserId == model.UserId || model.UserId == null)
+                            &&(c.CreatedDate == model.CreatedDate || model.CreatedDate == null)
+                            ).
+                    Skip(skip).
+                    Take(model.PageSize).
                     OrderBy(c => c.CreatedDate).
-                    Include(c => c.TicketId).
-                    Include(c => c.UserId).
+                    Include(c => c.Ticket).
+                    Include(c => c.User).
                     ToListAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Comment>> GetByTicketId(Guid id)
-        {
-            try
-            {
-                return await _context.Comment.
-                Where(c => c.TicketId == id).
-                OrderBy(c => c.CreatedDate).
-                Include(c => c.TicketId).
-                Include(c => c.UserId).
-                ToListAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Comment>> GetByUserId(Guid id)
-        {
-            try
-            {
-                return await _context.Comment.
-                Where(c => c.UserId == id).
-                OrderBy(c => c.CreatedDate).
-                Include(c => c.TicketId).
-                Include(c => c.UserId).
-                ToListAsync();
             }
             catch (Exception e)
             {
@@ -132,17 +104,53 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<bool> IsValidCommentId(Guid id)
-        {
-            try
-            {
-                return await _context.Comment.AnyAsync(c => c.Id == id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
+        //public async Task<IEnumerable<Comment>> GetByTicketId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Comment.
+        //        Where(c => c.TicketId == id).
+        //        OrderBy(c => c.CreatedDate).
+        //        Include(c => c.Ticket).
+        //        Include(c => c.User).
+        //        ToListAsync();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
+
+        //public async Task<IEnumerable<Comment>> GetByUserId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Comment.
+        //        Where(c => c.UserId == id).
+        //        OrderBy(c => c.CreatedDate).
+        //        Include(c => c.Ticket).
+        //        Include(c => c.User).
+        //        ToListAsync();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
+
+        //public async Task<bool> IsValidCommentId(Guid id)
+        //{
+        //    try
+        //    {
+        //        return await _context.Comment.AnyAsync(c => c.Id == id);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
     }
 }

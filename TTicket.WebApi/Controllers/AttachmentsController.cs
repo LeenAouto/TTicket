@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;
+using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -24,16 +25,18 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetAttachments")]
+        public async Task<IActionResult> GetAll([FromQuery] AttachmentListRequestModel model)
         {
             try
             {
-                var attachments = await _attachmentManager.GetAll();
+                var attachments = await _attachmentManager.GetList(model);
                 if (!attachments.Any())
-                    return NotFound($"No attachments were found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found"},
+                        ErrorCode.AttachmentsNotFound,
+                        $"No attachments were found"));
 
-                return Ok(attachments);
+                return Ok(new Response<IEnumerable<Attachment>>(attachments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -42,34 +45,18 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet("GetAttachment")]
+        public async Task<IActionResult> Get([FromQuery] AttachmentRequestModel model)
         {
             try
             {
-                var attachment = await _attachmentManager.Get(id);
+                var attachment = await _attachmentManager.Get(model);
                 if (attachment == null)
-                    return NotFound($"No attachment with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.AttachmentNotFound,
+                        $"No attachment was found"));
 
-                return Ok(attachment);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("GetByAttachedToId/{id}")]
-        public async Task<IActionResult> GetByAttachedToId(Guid id)
-        {
-            try
-            {
-                var attachments = await _attachmentManager.GetByAttachedToId(id);
-                if (!attachments.Any())
-                    return NotFound($"No attachments were found");
-
-                return Ok(attachments);
+                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -83,24 +70,35 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                if (!(await _ticketManager.IsValidTicketId(dto.AttachedToId) || await _commentManager.IsValidCommentId(dto.AttachedToId)))
-                    return BadRequest($"Invalid attachedTo id");
+                AttacherType attacher;
+                if (await _ticketManager.Get(new TicketRequestModel { Id = dto.AttachedToId }) != null)
+                    attacher = AttacherType.Ticket;
+                else if (await _commentManager.Get(dto.AttachedToId) != null)
+                    attacher = AttacherType.Comment;
+                else
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request"},
+                        ErrorCode.InvalidAttachedToId,
+                        $"Invalid attachedToId"));
 
-                if (!(dto.Attacher >= 1 && dto.Attacher <= 2))
-                    return BadRequest($"Invalid attacher type");
+                if (await _attachmentManager.Get(new AttachmentRequestModel { FileName = dto.FileName}) != null)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.AttachmentFileNameAlreadyUsed,
+                        $"File name is already used"));
 
                 if (string.IsNullOrWhiteSpace(dto.FileName))
-                    return BadRequest($"Attachment file name is required");
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidFileName,
+                        $"Attachment file name is required"));
 
                 var attachment = new Attachment
                 {
                     AttachedToId = dto.AttachedToId,
                     FileName = dto.FileName,
-                    Attacher = dto.Attacher == 1? AttacherType.Ticket : AttacherType.Comment
+                    Attacher = attacher
                 };
 
                 await _attachmentManager.Add(attachment);
-                return Ok(attachment);
+                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -114,17 +112,26 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                var attachment = await _attachmentManager.Get(id);
+                var attachment = await _attachmentManager.Get(new AttachmentRequestModel { Id = id });
                 if (attachment == null)
-                    return NotFound($"No attachment with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.AttachmentNotFound,
+                        $"No attachment was found"));
 
-                if(string.IsNullOrWhiteSpace(dto.FileName))
-                    return BadRequest($"Attachment file name is required");
+                if (await _attachmentManager.Get(new AttachmentRequestModel { FileName = dto.FileName }) != null)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.AttachmentFileNameAlreadyUsed,
+                        $"File name is already used"));
+
+                if (string.IsNullOrWhiteSpace(dto.FileName))
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidFileName,
+                        $"Attachment file name is required"));
 
                 attachment.FileName = dto.FileName;
 
                 _attachmentManager.Update(attachment);
-                return Ok(attachment);
+                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -138,12 +145,14 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                var attachment = await _attachmentManager.Get(id);
+                var attachment = await _attachmentManager.Get(new AttachmentRequestModel { Id = id });
                 if (attachment == null)
-                    return NotFound($"No attachment with id = {id} was found");
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.AttachmentNotFound,
+                        $"No attachment was found"));
 
                 _attachmentManager.Delete(attachment);
-                return Ok(attachment);
+                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -151,5 +160,25 @@ namespace TTicket.WebApi.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+
+        //[HttpGet("GetByAttachedToId/{id}")]
+        //public async Task<IActionResult> GetByAttachedToId(Guid id)
+        //{
+        //    try
+        //    {
+        //        var attachments = await _attachmentManager.GetByAttachedToId(id);
+        //        if (!attachments.Any())
+        //            return NotFound($"No attachments were found");
+
+        //        return Ok(attachments);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured In Controller.");
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }
