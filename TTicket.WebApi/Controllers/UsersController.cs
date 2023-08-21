@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
@@ -17,9 +20,11 @@ namespace TTicket.WebApi.Controllers
     {
         private readonly IUserManager _userManager;
         private readonly IAuthManager _authManager;
+
         private readonly IPasswordHasher _hasher;
 
         private readonly ILogger<UsersController> _logger;
+
 
         public UsersController(IUserManager userManager, ILogger<UsersController> logger, IPasswordHasher hasher, IAuthManager authManager)
         {
@@ -35,14 +40,18 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                //    return BadRequest("BadRequest");
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return BadRequest("BadRequest");
 
                 var users = await _userManager.GetList(model);
                 if (!users.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.UsersNotFound,
                         $"No users were found"));
+                foreach (var user in users)
+                {
+                    user.Image = GetUserImage(user.Id);
+                }
 
                 return Ok(new Response<IEnumerable<UserModel>>(users, ErrorCode.NoError));
             }
@@ -66,18 +75,33 @@ namespace TTicket.WebApi.Controllers
             {
                 var uidClaim = HttpContext.User.FindFirstValue("uid");
                 var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
-                if (uidClaim != id.ToString() && (userTypeClaim == "2" || userTypeClaim == "3"))
-                    return Forbid();
-
-                //
-                //HttpContext.Session.SetString("user", User.FindFirstValue(""));
+                if (uidClaim != id.ToString() && userTypeClaim != "1" )
+                    return Forbid("Only manager account can query other users info.");
+                
                 var user = await _userManager.Get(id);
                 if(user == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" }, 
                         ErrorCode.UserNotFound, 
                         $"The user was not found"));
 
-                return Ok(new Response<User>(user, ErrorCode.NoError));
+                var userModel = new UserModel
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    MobilePhone = user.MobilePhone,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    DateOfBirth = user.DateOfBirth,
+                    Address = user.Address,
+                    TypeUser = user.TypeUser,
+                    StatusUser = user.StatusUser,
+
+                    TicketCount = null,
+                    Image = GetUserImage(user.Id)
+                };
+
+            return Ok(new Response<User>(user, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -90,7 +114,7 @@ namespace TTicket.WebApi.Controllers
 
         [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")] //used by manager
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateDto dto)
+        public async Task<IActionResult> UpdateUser(Guid id, [FromForm] UserUpdateDto dto)
         {
             try
             {
@@ -146,6 +170,27 @@ namespace TTicket.WebApi.Controllers
                         $"Passwords must be of at least 8 characters, only English characters, " +
                         $"contains at least one digit and one special character."));
 
+                if (dto.Image != null && !".png".Contains(Path.GetExtension(dto.Image.FileName).ToLower()))
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidImageFormat,
+                        $"Only .png images are allowed, The user has been created with no image."));
+
+                if (dto.Image != null) 
+                {
+                    var filesPath = GetFilesPath();
+
+                    if (!Directory.Exists(filesPath))
+                        Directory.CreateDirectory(filesPath);
+
+                    var fileName = GenerateFileName(user.Id);
+
+                    var targetPath = Path.Combine(filesPath, fileName);
+                    using (var stream = new FileStream(targetPath, FileMode.Create))
+                    {
+                        await dto.Image.CopyToAsync(stream);
+                    }
+                }
+
                 user.Password = _hasher.Hash(dto.Password);
                 
                 user.FirstName = string.IsNullOrEmpty(dto.FirstName)? user.FirstName : dto.FirstName;
@@ -154,8 +199,6 @@ namespace TTicket.WebApi.Controllers
 
                 user.DateOfBirth = dto.DateOfBirth == default? user.DateOfBirth : dto.DateOfBirth;
                 user.Address = string.IsNullOrEmpty(dto.Address) ? user.Address : dto.Address;
-                user.TypeUser = dto.TypeUser == default? user.TypeUser : dto.TypeUser;
-                user.StatusUser = dto.StatusUser == default? user.StatusUser : dto.StatusUser;
 
                 _userManager.Update(user);
                 return Ok(new Response<User>(user, ErrorCode.NoError));
@@ -242,6 +285,20 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.UserNotFound,
                         $"Unable to delete the user becuase it does not exist"));
 
+                var filesPath = GetFilesPath();
+
+                if (!Directory.Exists(filesPath))
+                    Directory.CreateDirectory(filesPath);
+
+                var fileName = GenerateFileName(user.Id);
+
+                var targetPath = Path.Combine(filesPath, fileName);
+
+                if (System.IO.File.Exists(targetPath))
+                {
+                    System.IO.File.Delete(targetPath);
+                }
+
                 _userManager.Delete(user);
                 return Ok(new Response<User>(user, ErrorCode.NoError));
             }
@@ -251,6 +308,37 @@ namespace TTicket.WebApi.Controllers
                 return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
                     ErrorCode.LoggedError, e.Message));
             }
+        }
+
+        [NonAction]
+        private string GetFilesPath()
+        {
+            var builder = new ConfigurationBuilder()
+                               .SetBasePath(Directory.GetCurrentDirectory())
+                               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            return builder.Build().GetSection("Path").GetSection("UsersImages").Value;
+        }
+
+        [NonAction]
+        private string GenerateFileName(Guid id)
+        {
+            var fileName = id.ToString() + ".png";
+            return fileName;
+        }
+
+        [NonAction]
+        private string GetUserImage(Guid id)
+        {
+            var filePath = GetFilesPath();
+
+            var imagePath = filePath + "\\" + id.ToString() + ".png";
+            if (!System.IO.File.Exists(imagePath))
+            {
+                return string.Empty;
+            }
+
+            return imagePath;
         }
     }
 }

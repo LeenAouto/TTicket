@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace TTicket.Models.DTOs
 {
@@ -19,7 +20,7 @@ namespace TTicket.Models.DTOs
         public DateTime DateOfBirth { get; set; } = default;
         [MaxLength(256)]
         public string? Address { get; set; }
-        public UserType TypeUser { get; set; } = default;
-        public UserStatus StatusUser { get; set; } = default;
+
+        public IFormFile? Image { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
@@ -17,17 +16,13 @@ namespace TTicket.WebApi.Controllers
         private readonly ITicketManager _ticketManager;
         private readonly ICommentManager _commentManager;
 
-        private readonly IWebHostEnvironment _webHostEnvironment;
-
         private readonly ILogger<AttachmentsController> _logger;
 
-        public AttachmentsController(IAttachmentManager attachmentManager, ITicketManager ticketManager, ICommentManager commentManager, ILogger<AttachmentsController> logger, IWebHostEnvironment webHostEnvironment)
+        public AttachmentsController(IAttachmentManager attachmentManager, ITicketManager ticketManager, ICommentManager commentManager, ILogger<AttachmentsController> logger)
         {
             _attachmentManager = attachmentManager;
             _ticketManager = ticketManager;
             _commentManager = commentManager;
-
-            _webHostEnvironment = webHostEnvironment;
 
             _logger = logger;
         }
@@ -114,18 +109,10 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidAttachedToId,
                         $"Invalid attachedToId"));
 
-                /*
-                if (await _attachmentManager.GetByName(dto.FileName) != null)
+                if (dto.AttachmentFile.Length <= 0)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.AttachmentFileNameAlreadyUsed,
-                        $"File name is already used"));
-
-                
-                if (string.IsNullOrWhiteSpace(dto.FileName))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidFileName,
-                        $"Attachment file name is required"));
-                */
+                        ErrorCode.AttachmentRequired,
+                        $"Attachment file is required"));
 
                 var filesPath = GetFilesPath(dto.AttachedToId);
 
@@ -168,17 +155,7 @@ namespace TTicket.WebApi.Controllers
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.AttachmentNotFound,
                         $"No attachment was found"));
-                /*
-                if (await _attachmentManager.GetByName(dto.FileName) != null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.AttachmentFileNameAlreadyUsed,
-                        $"File name is already used"));
 
-                if (string.IsNullOrWhiteSpace(dto.FileName))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidFileName,
-                        $"Attachment file name is required"));
-                */
                 if(dto.AttachmentFile.Length <= 0)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AttachmentRequired,
@@ -246,11 +223,17 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [NonAction]
         private string GetFilesPath(Guid id)
         {
-            return _webHostEnvironment.WebRootPath + "\\Uploads\\Attachments\\" + id.ToString();
+            var builder = new ConfigurationBuilder()
+                               .SetBasePath(Directory.GetCurrentDirectory())
+                               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            return builder.Build().GetSection("Path").GetSection("AttachmentUploadPath").Value + id.ToString();
         }
 
+        [NonAction]
         private string GenerateFileName(IFormFile file)
         {
             var extension = "." + file.FileName.Split('.').Last();

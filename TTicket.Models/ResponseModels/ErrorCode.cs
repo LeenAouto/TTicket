@@ -8,6 +8,8 @@
 
         InvalidModelState = 2,
 
+        ForbidAccess = 3,
+
         //User errors
         UserNotFound = 1000,
         UsersNotFound = 1001,
@@ -20,6 +22,7 @@
         InvalidEmailAddress = 1202,
         InvalidPhoneNumber = 1203,
         InvalidPassword = 1204,
+        InvalidImageFormat = 1205,
 
         UserAlreadyActive = 1301,
         UserAlreadyInactive = 1302,

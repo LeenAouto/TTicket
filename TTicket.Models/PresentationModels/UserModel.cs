@@ -32,5 +32,7 @@
         public UserStatus StatusUser { get; set; }
 
         public int? TicketCount { get; set; } = null;
+
+        public string? Image { get; set; } = null;
     }
 }

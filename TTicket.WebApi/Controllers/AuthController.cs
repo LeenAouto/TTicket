@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
-using System.Security.Claims;
 using TTicket.Abstractions.Security;
 using TTicket.Models;
 using TTicket.Models.ResponseModels;
@@ -27,7 +26,7 @@ namespace TTicket.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("RegisterClient")]
-        public async Task<IActionResult> RegisterClient([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> RegisterClient([FromForm] RegisterViewModel model)
         {
             try
             {
@@ -57,10 +56,33 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
+                if(model.Image !=  null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidImageFormat,
+                        $"Only .png images are allowed, The user has been created with no image."));
+
                 var result = await _authManager.RegisterClient(model);
 
-                if (!result.IsAuthenticated)
-                    return BadRequest(result.Message);
+                if(model.Image != null)
+                {
+                    if (!result.IsAuthenticated)
+                        return BadRequest(result.Message);
+
+                    var filesPath = GetFilesPath();
+
+                    if (!Directory.Exists(filesPath))
+                        Directory.CreateDirectory(filesPath);
+
+                    var fileName = GenerateFileName(result.Id);
+
+                    var targetPath = Path.Combine(filesPath, fileName);
+                    using (var stream = new FileStream(targetPath, FileMode.Create))
+                    {
+                        await model.Image.CopyToAsync(stream);
+                    }
+                }
+
+                HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
 
                 return Ok(new Response<AuthModel>(result, ErrorCode.NoError));
             }
@@ -73,16 +95,12 @@ namespace TTicket.WebApi.Controllers
         }
 
 
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPost("RegisterSupport")]
-        public async Task<IActionResult> RegisterSupport([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> RegisterSupport([FromForm] RegisterViewModel model)
         {
             try
             {
-                //var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
-                //if (userTypeClaim != "1")
-                //    return Forbid();
-
                 if (!ModelState.IsValid)
                     return BadRequest(new Response<ModelStateDictionary>(ModelState,
                         ErrorCode.InvalidModelState,
@@ -109,10 +127,31 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
+                if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.InvalidImageFormat,
+                        $"Only .png images are allowed, The user has been created with no image."));
+
                 var result = await _authManager.RegisterClient(model);
 
-                if (!result.IsAuthenticated)
-                    return BadRequest(result.Message);
+                if (model.Image != null)
+                {
+                    if (!result.IsAuthenticated)
+                        return BadRequest(result.Message);
+
+                    var filesPath = GetFilesPath();
+
+                    if (!Directory.Exists(filesPath))
+                        Directory.CreateDirectory(filesPath);
+
+                    var fileName = GenerateFileName(result.Id);
+
+                    var targetPath = Path.Combine(filesPath, fileName);
+                    using (var stream = new FileStream(targetPath, FileMode.Create))
+                    {
+                        await model.Image.CopyToAsync(stream);
+                    }
+                }
 
                 HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
 
@@ -172,6 +211,23 @@ namespace TTicket.WebApi.Controllers
                 return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
                     ErrorCode.LoggedError, e.Message));
             }
+        }
+
+        [NonAction]
+        private string GetFilesPath()
+        {
+            var builder = new ConfigurationBuilder()
+                               .SetBasePath(Directory.GetCurrentDirectory())
+                               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            return builder.Build().GetSection("Path").GetSection("UsersImages").Value;
+        }
+
+        [NonAction]
+        private string GenerateFileName(Guid id)
+        {
+            var fileName = id.ToString() + ".png";
+            return fileName;
         }
     }
 }
