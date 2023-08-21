@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.DTOs;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
@@ -18,12 +20,27 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Product> Get(ProductRequestModel model)
+        public async Task<Product> Get(Guid id)
         {
             try
             {
                 return await _context.Product.
-                    Where(p => p.Id == model.Id || p.Name == model.Name).
+                    Where(p => p.Id == id).
+                    SingleOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<Product> GetByName(string name)
+        {
+            try
+            {
+                return await _context.Product.
+                    Where(p => p.Name == name).
                     FirstOrDefaultAsync();
             }
             catch (Exception e)
@@ -95,18 +112,5 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-
-        //public async Task<bool> IsValidProductId(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.Product.AnyAsync(p => p.Id == id);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
     }
 }

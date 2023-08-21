@@ -17,12 +17,27 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Attachment> Get(AttachmentRequestModel model)
+        public async Task<Attachment> Get(Guid id)
         {
             try
             {
                 return await _context.Attachment.
-                    Where(a => a.Id == model.Id || a.FileName == model.FileName).
+                    Where(a => a.Id == id).
+                    SingleOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<Attachment> GetByName(string fileName)
+        {
+            try
+            {
+                return await _context.Attachment.
+                    Where(a => a.FileName == fileName).
                     FirstOrDefaultAsync();
             }
             catch (Exception e)
@@ -39,12 +54,12 @@ namespace TTicket.DAL.Managers
                 var skip = (model.PageNumber - 1) * model.PageSize;
                 return await _context.Attachment.
                     Where(a => (a.AttachedToId == model.AttachedToId || model.AttachedToId == null)
-                            && (a.FileName == model.FileName || model.FileName == null)
-                            && (a.Attacher == model.Attacher || model.Attacher == null)
+                            //&& (a.FileName == model.FileName || model.FileName == null)
+                            //&& (a.Attacher == model.Attacher || model.Attacher == null)
                             ).
+                    OrderBy(a => a.Id).
                     Skip(skip).
                     Take(model.PageSize).
-                    OrderBy(a => a.Id).
                     ToListAsync();
             }
             catch (Exception e)
@@ -98,35 +113,5 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-
-        //public async Task<IEnumerable<Attachment>> GetByAttachedToId(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.Attachment.
-        //            Where(a => a.AttachedToId == id).
-        //            OrderBy(a => a.Id).
-        //            ToListAsync();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
-
-
-        //public async Task<bool> IsValidAttachmentId(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.Attachment.AnyAsync(a => a.Id == id);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
     }
 }

@@ -7,8 +7,8 @@
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string MobilePhone { get; set; } = string.Empty;
-        public byte TypeUser { get; set; }
-        public byte StatusUser { get; set; }
+        public UserType TypeUser { get; set; }
+        public UserStatus StatusUser { get; set; }
 
         //Auth info
         public string Message { get; set; } = string.Empty;

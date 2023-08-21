@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TTicket.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class initial_create : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,8 +63,8 @@ namespace TTicket.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SupportId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SupportId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -80,19 +80,19 @@ namespace TTicket.DAL.Migrations
                         column: x => x.ProductId,
                         principalTable: "Product",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Ticket_User_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Ticket_User_SupportId",
                         column: x => x.SupportId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Ticket_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -113,19 +113,19 @@ namespace TTicket.DAL.Migrations
                         column: x => x.TicketId,
                         principalTable: "Ticket",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Comment_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.InsertData(
                 table: "User",
                 columns: new[] { "Id", "Address", "DateOfBirth", "Email", "FirstName", "LastName", "MobilePhone", "Password", "StatusUser", "TypeUser", "Username" },
-                values: new object[] { new Guid("d3ec4e89-c5f9-4b6d-b130-35300d11feaf"), "Saudi Arabia, Qassim, Buraydah", new DateTime(2000, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), "leen.aouto@gmail.com", "Leen", "Aouto", "0545529216", "UOYHeCPrTb7mXfIWB4Tgpw==;sa11+u/Y61ABUBzuDrqtSc01oV4ntD9IcdkbTB5rLSQ=", (byte)1, (byte)1, "manager" });
+                values: new object[] { new Guid("f1e05975-f769-492b-ada2-446060e04fcc"), "Saudi Arabia, Qassim, Buraydah", new DateTime(2000, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), "leen.aouto@gmail.com", "Leen", "Aouto", "0545529216", "Z8dQX2YTuEtngBGpgkhqtw==;lAf9N5NvV0/MwLN73P5nwnVSj351WoEHAdqYBlWbLAU=", (byte)1, (byte)1, "manager" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comment_TicketId",
@@ -138,11 +138,6 @@ namespace TTicket.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ticket_ClientId",
-                table: "Ticket",
-                column: "ClientId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Ticket_ProductId",
                 table: "Ticket",
                 column: "ProductId");
@@ -151,6 +146,11 @@ namespace TTicket.DAL.Migrations
                 name: "IX_Ticket_SupportId",
                 table: "Ticket",
                 column: "SupportId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ticket_UserId",
+                table: "Ticket",
+                column: "UserId");
         }
 
         /// <inheritdoc />

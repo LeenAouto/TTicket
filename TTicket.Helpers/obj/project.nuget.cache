@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "+FrWv+PCmz1hdhgKzZgBcacoaNuvsb38zc6AxQ4bO8wLIwZ/1Y/l47hNyOc/s8cLg8wku+ocBIXsdQsK3h+F8w==",
+  "dgSpecHash": "dXV9E9GgJpYVK4wNBeqPq6fs/ueYoCJqyWTt0vkJaLk3oZ6uIhEXCdtT0NIL6mzMuFwvfzG/v4XJU7h3XZGgpg==",
   "success": true,
   "projectFilePath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Helpers\\TTicket.Helpers.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.diagnostics.healthchecks.abstractions\\7.0.10\\microsoft.extensions.diagnostics.healthchecks.abstractions.7.0.10.nupkg.sha512"
+  ],
   "logs": []
 }

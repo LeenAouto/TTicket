@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "U1mAHgd8Atus3PH8t4t8KhT4C3j9ZR5gKA3x6iGNG4CzDNhhPXIJYJquF9MV1ln4DYJAzKYfWAI6tlcwkG10LQ==",
+  "dgSpecHash": "XpCWpLR/3zxY4zFxWcwTzaRHSoCqpFzNG3VCejf9O/M2KNILhr+gHuTWwJnm42JXH20SNRPLCMQZ7UPZ2IUNSg==",
   "success": true,
   "projectFilePath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.Models\\TTicket.Models.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\leen_\\.nuget\\packages\\microsoft.aspnetcore.http.features\\2.2.0\\microsoft.aspnetcore.http.features.2.2.0.nupkg.sha512",
+    "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.primitives\\2.2.0\\microsoft.extensions.primitives.2.2.0.nupkg.sha512",
+    "C:\\Users\\leen_\\.nuget\\packages\\system.memory\\4.5.1\\system.memory.4.5.1.nupkg.sha512",
+    "C:\\Users\\leen_\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.5.1\\system.runtime.compilerservices.unsafe.4.5.1.nupkg.sha512"
+  ],
   "logs": []
 }

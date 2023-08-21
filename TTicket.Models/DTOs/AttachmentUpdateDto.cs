@@ -1,7 +1,9 @@
-﻿namespace TTicket.Models.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace TTicket.Models.DTOs
 {
-    public class AttachmentUpdateDto : AttachmentBaseDto
+    public class AttachmentUpdateDto 
     {
-        
+        public IFormFile AttachmentFile { get; set; }
     }
 }

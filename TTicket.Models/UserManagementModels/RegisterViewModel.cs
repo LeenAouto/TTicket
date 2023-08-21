@@ -26,8 +26,5 @@ namespace TTicket.Models.UserManagementModels
         public DateTime DateOfBirth { get; set; }
 
         public string? Address { get; set; }
-
-        [Required]
-        public byte TypeUser { get; set; }
     }
 }

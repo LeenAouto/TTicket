@@ -4,7 +4,7 @@
     {
         NoError = 0,
 
-        Error = 1,
+        LoggedError = 1,
 
         InvalidModelState = 2,
 
@@ -35,6 +35,8 @@
 
         InvalidAttachedToId = 2201,
         InvalidFileName = 2202,
+
+        AttachmentRequired = 2501,
 
 
         //Comments errors

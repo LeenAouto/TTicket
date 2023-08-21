@@ -2,7 +2,7 @@
 
 namespace TTicket.Models.DTOs
 {
-    public class ProductBaseDto
+    public class ProductDto
     {
         [MaxLength(256)]
         public string Name { get; set; } = string.Empty;

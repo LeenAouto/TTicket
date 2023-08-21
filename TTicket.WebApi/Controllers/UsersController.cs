@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
 using TTicket.Models;
 using TTicket.Models.DTOs;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
 
@@ -26,32 +29,49 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAll([FromQuery] UserListRequestModel model)
         {
             try
             {
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return BadRequest("BadRequest");
+
                 var users = await _userManager.GetList(model);
                 if (!users.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.UsersNotFound,
                         $"No users were found"));
 
-                return Ok(new Response<IEnumerable<User>>(users, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<UserModel>>(users, ErrorCode.NoError));
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
-        [HttpGet("GetUser")]
-        public async Task<IActionResult> Get([FromQuery] UserRequestModel model)
+
+        //// 
+        //Allow the client / support user to only see his info and no other user
+        //// 
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                var user = await _userManager.Get(model);
+                var uidClaim = HttpContext.User.FindFirstValue("uid");
+                var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
+                if (uidClaim != id.ToString() && (userTypeClaim == "2" || userTypeClaim == "3"))
+                    return Forbid();
+
+                //
+                //HttpContext.Session.SetString("user", User.FindFirstValue(""));
+                var user = await _userManager.Get(id);
                 if(user == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" }, 
                         ErrorCode.UserNotFound, 
@@ -62,16 +82,19 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
+
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")] //used by manager
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateDto dto)
         {
             try
             {
-                var user = await _userManager.Get(new UserRequestModel { Id = id });
+                var user = await _userManager.Get(id);
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request"}, 
                         ErrorCode.UserNotFound, 
@@ -83,7 +106,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidUsername,
                         $"Usernames can only be of English characters"));
 
-                if (dto.Username != user.Username && await _userManager.Get(new UserRequestModel { Identity = dto.Username }) != null)
+                if (dto.Username != user.Username && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Username }) != null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UsernameAlreadyUsed,
                         $"This username is already used by another account"));
@@ -96,7 +119,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
-                if (dto.Email != user.Email && await _userManager.Get(new UserRequestModel { Identity = dto.Email }) != null)
+                if (dto.Email != user.Email && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Email }) != null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserEmailAlreadyUsed,
                         $"This email is already used by another account"));
@@ -109,7 +132,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidPhoneNumber,
                         $"Phone number must start with 05 and be exactly 10 digits"));
 
-                if (dto.MobilePhone != user.MobilePhone && await _userManager.Get(new UserRequestModel { Identity = dto.MobilePhone }) != null)
+                if (dto.MobilePhone != user.MobilePhone && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.MobilePhone }) != null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserPhoneAlreadyUsed,
                         $"This mobile phone number is already used by another account"));
@@ -140,16 +163,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("activate/{id}")]
         public async Task<IActionResult> Activate(Guid id)
         {
             try
             {
-                var user = await _userManager.Get(new UserRequestModel { Id = id });
+                var user = await _userManager.Get(id);
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound,
@@ -169,17 +194,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
-
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("deactivate/{id}")]
         public async Task<IActionResult> Dectivate(Guid id)
         {
             try
             {
-                var user = await _userManager.Get(new UserRequestModel { Id = id });
+                var user = await _userManager.Get(id);
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound,
@@ -199,16 +225,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var user = await _userManager.Get(new UserRequestModel { Id = id });
+                var user = await _userManager.Get(id);
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound,
@@ -220,7 +248,8 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
     }

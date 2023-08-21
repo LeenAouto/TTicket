@@ -8,7 +8,7 @@
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
 
-        public Ticket Ticket { get; set; } = new Ticket();
-        public User User { get; set; } = new User();
+        public Ticket? Ticket { get; set; }
+        public User? User { get; set; }
     }
 }

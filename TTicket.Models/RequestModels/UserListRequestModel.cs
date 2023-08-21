@@ -10,7 +10,6 @@
         public UserType? TypeUser { get; set; }
         public UserStatus? StatusUser { get; set; }
 
-        public bool WithTicketCount => TypeUser == UserType.Client;
-
+        //public bool WithTicketCount => TypeUser == UserType.Client;
     }
 }

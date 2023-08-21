@@ -2,6 +2,6 @@
 {
     public class TicketAddDto : TicketBaseDto
     {
-        public Guid ClientId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

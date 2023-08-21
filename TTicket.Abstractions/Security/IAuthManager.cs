@@ -4,7 +4,8 @@ namespace TTicket.Abstractions.Security
 {
     public interface IAuthManager
     {
-        Task<AuthModel> Register(RegisterViewModel model); //Register
+        Task<AuthModel> RegisterClient(RegisterViewModel model); //Register 
+        Task<AuthModel> RegisterSupport(RegisterViewModel model); //Register 
         Task<AuthModel> Login(LoginViewModel model); //Log in
 
         bool IsValidUserName(string userName);

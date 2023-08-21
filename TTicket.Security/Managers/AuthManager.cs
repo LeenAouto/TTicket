@@ -29,7 +29,7 @@ namespace TTicket.Security
             _hasher = hasher;
         }
 
-        public async Task<AuthModel> Register(RegisterViewModel model)
+        public async Task<AuthModel> RegisterClient(RegisterViewModel model)
         {
             try
             {
@@ -38,15 +38,15 @@ namespace TTicket.Security
                     Identity = model.Username
                 };
 
-                if (await _userManager.Get(request) != null)
+                if (await _userManager.GetByIdentity(request) != null)
                     return new AuthModel { Message = "Username is already registered" };
 
                 request.Identity = model.Email;
-                if (await _userManager.Get(request) != null)
+                if (await _userManager.GetByIdentity(request) != null)
                     return new AuthModel { Message = "Email is already registered" };
 
                 request.Identity = model.MobilePhone;
-                if (await _userManager.Get(request) != null)
+                if (await _userManager.GetByIdentity(request) != null)
                     return new AuthModel { Message = "The phone number is already used in another account" };
 
                 var user = new User
@@ -59,7 +59,7 @@ namespace TTicket.Security
                     LastName = model.LastName,
                     DateOfBirth = model.DateOfBirth,
                     Address = model.Address,
-                    TypeUser = model.TypeUser == 2 ? UserType.Support : UserType.Client,
+                    TypeUser = UserType.Client,
                     StatusUser = UserStatus.Active
                 };
 
@@ -73,8 +73,8 @@ namespace TTicket.Security
                     Username = resultUser.Username.ToLower(),
                     Email = resultUser.Email.ToLower(),
                     MobilePhone = resultUser.MobilePhone,
-                    TypeUser = (byte)resultUser.TypeUser,
-                    StatusUser = (byte)resultUser.StatusUser,
+                    TypeUser = resultUser.TypeUser,
+                    StatusUser = resultUser.StatusUser,
 
                     Message = "Success",
                     IsAuthenticated = true,
@@ -88,6 +88,67 @@ namespace TTicket.Security
                 throw;
             }        
         }
+
+        public async Task<AuthModel> RegisterSupport(RegisterViewModel model)
+        {
+            try
+            {
+                var request = new UserRequestModel
+                {
+                    Identity = model.Username
+                };
+
+                if (await _userManager.GetByIdentity(request) != null)
+                    return new AuthModel { Message = "Username is already registered" };
+
+                request.Identity = model.Email;
+                if (await _userManager.GetByIdentity(request) != null)
+                    return new AuthModel { Message = "Email is already registered" };
+
+                request.Identity = model.MobilePhone;
+                if (await _userManager.GetByIdentity(request) != null)
+                    return new AuthModel { Message = "The phone number is already used in another account" };
+
+                var user = new User
+                {
+                    Username = model.Username,
+                    Password = _hasher.Hash(model.Password),
+                    Email = model.Email,
+                    MobilePhone = model.MobilePhone,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    DateOfBirth = model.DateOfBirth,
+                    Address = model.Address,
+                    TypeUser = UserType.Support,
+                    StatusUser = UserStatus.Active
+                };
+
+                var resultUser = await _userManager.Add(user);
+
+                var jwtSecurityToken = CreateJwtToken(user);
+
+                return new AuthModel
+                {
+                    Id = resultUser.Id,
+                    Username = resultUser.Username.ToLower(),
+                    Email = resultUser.Email.ToLower(),
+                    MobilePhone = resultUser.MobilePhone,
+                    TypeUser = resultUser.TypeUser,
+                    StatusUser = resultUser.StatusUser,
+
+                    Message = "Success",
+                    IsAuthenticated = true,
+                    Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+                    ExpiresOn = jwtSecurityToken.ValidTo
+                };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
         public async Task<AuthModel> Login(LoginViewModel model)
         {
             try
@@ -96,7 +157,7 @@ namespace TTicket.Security
 
                 var request = new UserRequestModel { Identity = model.Identity };
 
-                var user = await _userManager.Get(request);
+                var user = await _userManager.GetByIdentity(request);
 
                 if (user is null || !_hasher.Verify(user.Password, model.Password))
                 {
@@ -110,8 +171,8 @@ namespace TTicket.Security
                 authModel.Username = user.Username;
                 authModel.Email = user.Email;
                 authModel.MobilePhone = user.MobilePhone;
-                authModel.TypeUser = (byte)user.TypeUser;
-                authModel.StatusUser = (byte)user.StatusUser;
+                authModel.TypeUser = user.TypeUser;
+                authModel.StatusUser = user.StatusUser;
 
                 authModel.Message = "Success";
                 authModel.IsAuthenticated = true;
@@ -175,9 +236,26 @@ namespace TTicket.Security
 
         private JwtSecurityToken CreateJwtToken(User user)
         {
+            string userTypeString;
+            if (user.TypeUser == UserType.Manager)
+                userTypeString = "1";
+            else if (user.TypeUser == UserType.Support)
+                userTypeString = "2";
+            else
+                userTypeString = "3";
+
             var userClaims = new List<Claim> {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("TypeUser", userTypeString)
             };
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("uid", user.Id.ToString()),
+            }.Union(userClaims);
 
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
@@ -185,7 +263,7 @@ namespace TTicket.Security
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _jwt.Issuer,
                 audience: _jwt.Audience,
-                claims: userClaims,
+                claims: claims,
                 expires: DateTime.Now.AddMinutes(_jwt.DurationInMinutes),
                 signingCredentials: signingCredentials);
 

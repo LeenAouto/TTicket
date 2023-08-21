@@ -14,6 +14,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//Adding Health Check
+builder.Services.AddHealthChecks().AddCheck<DbHealthCheck>("Database");
+
+//Adding Session
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession( options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(15);
+});
+
 //Adding JWT
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddAuthentication(options =>
@@ -33,9 +43,25 @@ builder.Services.AddAuthentication(options =>
             ValidateLifetime = true,
             ValidIssuer = builder.Configuration["JWT:Issuer"],
             ValidAudience = builder.Configuration["JWT:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+            ClockSkew = TimeSpan.Zero
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ManagerPolicy", p =>
+        p.RequireClaim("TypeUser", "1")
+    );
+
+    options.AddPolicy("SupportPolicy", p =>
+        p.RequireClaim("TypeUser", "2")
+    );
+
+    options.AddPolicy("ClientPolicy", p =>
+        p.RequireClaim("TypeUser", "3")
+    );
+});
 
 //Adding Serilog
 Log.Logger = new LoggerConfiguration().
@@ -75,12 +101,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//Enabling staticFiles
+app.UseStaticFiles();
+
 //Adding CORS
 app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
-app.UseAuthentication();
+//Adding Health Check
+app.MapHealthChecks("/_health");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllers();
 

@@ -55,14 +55,14 @@ namespace TTicket.DAL
 
             //Setting two FKs to the User table from Ticket table
             modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Client)
+                .HasOne(t => t.User)
                 .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Support)
                 .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public DbSet<User> User { get; set; }

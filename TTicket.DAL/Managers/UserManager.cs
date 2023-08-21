@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
-using TTicket.Abstractions.Security;
 using TTicket.Models;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
-using TTicket.Models.UserManagementModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -18,8 +17,20 @@ namespace TTicket.DAL.Managers
             _context = context;
             _logger = logger;
         }
-        
-        public async Task<User> Get(UserRequestModel model)
+
+        public async Task<User> Get(Guid id)
+        {
+            try
+            {
+                return await _context.User.Where(u => u.Id == id).SingleOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+        public async Task<User> GetByIdentity(UserRequestModel model)
         {
             try
             {
@@ -34,12 +45,12 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-        public async Task<IEnumerable<User>> GetList(UserListRequestModel model)
+        public async Task<IEnumerable<UserModel>> GetList(UserListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                return await _context.User.
+                var users = await _context.User.
                     Where(u => (u.Username == model.Username || model.Username == null)
                             && (u.Email == model.Email || model.Email == null)
                             && (u.MobilePhone == model.MobilePhone || model.MobilePhone == null)
@@ -50,7 +61,9 @@ namespace TTicket.DAL.Managers
                             ).
                     Skip(skip).
                     Take(model.PageSize).
+                    Select(u => new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null)).
                     ToListAsync();
+                return users;
             }
             catch (Exception e)
             {
@@ -103,47 +116,5 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-
-
-
-
-        //public async Task<bool> IsValidUserId(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.User.AnyAsync(u => u.Id == id);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
-
-        //public async Task<bool> IsClient(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Client);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
-
-        //public async Task<bool> IsSupport(Guid id)
-        //{
-        //    try
-        //    {
-        //        return await _context.User.AnyAsync(u => u.Id == id && u.TypeUser == UserType.Support);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
     }
 }

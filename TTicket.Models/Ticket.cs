@@ -3,8 +3,8 @@
     public class Ticket
     {
         public Guid Id { get; set; }
-        public Guid ClientId { get; set; }
-        public Guid? SupportId { get; set; }
+        public Guid UserId { get; set; } //client
+        public Guid? SupportId { get; set; } = null;
         public Guid ProductId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
@@ -12,9 +12,9 @@
         public DateTime? UpdatedDate { get; set; }
         public TicketStatus Status { get; set; }
 
-        public User Client { get; set; } = new User();
-        public User Support { get; set; } = new User();
-        public Product Product { get; set; } = new Product();
+        public User User { get; set; } //client
+        public User? Support { get; set; }
+        public Product Product { get; set; }
     }
 
     public enum TicketStatus : byte

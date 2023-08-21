@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "rVAPDewijVNRlTEOhy2NHKJMVb9z0CwCG5BJv4YgrCwnCKNP3eNOM/uU2x9Sq47+LfrPOsrkrxzffeNzrJiWVw==",
+  "dgSpecHash": "OgNICsB/6NE+/MfB8PhIi/lsmQEvAq8CZ7raTiRJ7FV+PgID8VWyhYKxFHLhWxgrpSlpAX3ioyLcikGY59fsBA==",
   "success": true,
   "projectFilePath": "D:\\Program Files\\source\\repos\\TTicket\\TTicket.DAL\\TTicket.DAL.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\leen_\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
+    "C:\\Users\\leen_\\.nuget\\packages\\microsoft.aspnetcore.http.features\\2.2.0\\microsoft.aspnetcore.http.features.2.2.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.data.sqlclient\\5.0.2\\microsoft.data.sqlclient.5.0.2.nupkg.sha512",
@@ -24,6 +25,7 @@
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.dependencymodel\\7.0.0\\microsoft.extensions.dependencymodel.7.0.0.nupkg.sha512",
+    "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.diagnostics.healthchecks.abstractions\\7.0.10\\microsoft.extensions.diagnostics.healthchecks.abstractions.7.0.10.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.logging\\7.0.0\\microsoft.extensions.logging.7.0.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.0\\microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\leen_\\.nuget\\packages\\microsoft.extensions.options\\7.0.0\\microsoft.extensions.options.7.0.0.nupkg.sha512",

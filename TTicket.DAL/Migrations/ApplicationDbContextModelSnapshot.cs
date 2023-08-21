@@ -96,9 +96,6 @@ namespace TTicket.DAL.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,19 +114,21 @@ namespace TTicket.DAL.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<Guid?>("SupportId")
-                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("ClientId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SupportId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Ticket", (string)null);
                 });
@@ -184,14 +183,14 @@ namespace TTicket.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("89cc1b1e-6b9e-46ed-a896-ff423edcd12d"),
+                            Id = new Guid("59595c35-2424-45db-ab48-9ee6934de7fe"),
                             Address = "Saudi Arabia, Qassim, Buraydah",
                             DateOfBirth = new DateTime(2000, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "leen.aouto@gmail.com",
                             FirstName = "Leen",
                             LastName = "Aouto",
                             MobilePhone = "0545529216",
-                            Password = "Dc9CwJ20BNblvrPieFoqJQ==;XbQADCs13mwcL1ylNZNjf6goWbSdyWzh4ZkN8dN03XQ=",
+                            Password = "VHXdBussrAks4If4DarVZg==;fHXwTTrzNGgJttELwo9s305e3zhbx+T+ns+vLn/0nFw=",
                             StatusUser = (byte)1,
                             TypeUser = (byte)1,
                             Username = "manager"
@@ -219,12 +218,6 @@ namespace TTicket.DAL.Migrations
 
             modelBuilder.Entity("TTicket.Models.Ticket", b =>
                 {
-                    b.HasOne("TTicket.Models.User", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("TTicket.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -234,14 +227,19 @@ namespace TTicket.DAL.Migrations
                     b.HasOne("TTicket.Models.User", "Support")
                         .WithMany()
                         .HasForeignKey("SupportId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
-                    b.Navigation("Client");
+                    b.HasOne("TTicket.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Product");
 
                     b.Navigation("Support");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

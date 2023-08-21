@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
+using TTicket.Security.Policies;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -21,7 +24,8 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("GetProducts")]
+        [MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] ProductListRequestModel model)
         {
             try
@@ -37,16 +41,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
-        [HttpGet("GetProduct")]
-        public async Task<IActionResult> Get([FromQuery] ProductRequestModel model)
+        [MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                var product = await _productManager.Get(model);
+                var product = await _productManager.Get(id);
                 if (product == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.ProductNotFound,
@@ -57,12 +63,14 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
-
+        
+        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy")]
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] ProductBaseDto dto)
+        public async Task<IActionResult> Add([FromBody] ProductDto dto)
         {
             try
             {
@@ -71,7 +79,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidProductName,
                         $"Invalid product name"));
 
-                if(await _productManager.Get(new ProductRequestModel { Name = dto.Name }) != null)
+                if(await _productManager.GetByName(dto.Name) != null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.ProductNameAlreadyUsed,
                         $"Product name is already used"));
@@ -86,16 +94,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] ProductBaseDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] ProductDto dto)
         {
             try
             {
-                var product = await _productManager.Get(new ProductRequestModel { Id = id});
+                var product = await _productManager.Get(id);
                 if (product == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.ProductNotFound,
@@ -106,11 +116,11 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidProductName,
                         $"Invalid product name"));
 
-                if (await _productManager.Get(new ProductRequestModel { Name = dto.Name }) != null)
+                if (await _productManager.GetByName(dto.Name) != null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.ProductNameAlreadyUsed,
                         $"Product name is already used"));
-
+                
                 product.Name = dto.Name;
                 _productManager.Update(product);
                 return Ok(new Response<Product>(product, ErrorCode.NoError));
@@ -118,16 +128,18 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                    ErrorCode.LoggedError, e.Message));
             }
         }
 
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var product = await _productManager.Get(new ProductRequestModel { Id = id });
+                var product = await _productManager.Get(id);
                 if (product == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.ProductNotFound,
@@ -139,7 +151,8 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(e.Message);
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
             }
         }
     }
