@@ -1,16 +1,15 @@
-﻿using TTicket.Models;
-using TTicket.Models.PresentationModels;
+﻿using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 
 namespace TTicket.Abstractions.DAL
 {
     public interface IUserManager
     {
-        Task<User> Get(Guid id);
-        Task<User> GetByIdentity(UserRequestModel model);
+        Task<UserModel> Get(Guid id);
+        Task<UserModel> GetByIdentity(UserRequestModel model);
         Task<IEnumerable<UserModel>> GetList(UserListRequestModel model);
-        Task<User> Add(User user);
-        User Update(User user);
-        User Delete(User user);
+        Task<UserModel> Add(UserModel user);
+        Task<UserModel> Update(UserModel user);
+        Task<UserModel> Delete(UserModel user);
     }
 }

@@ -4,7 +4,7 @@ using TTicket.Models.DTOs;
 using TTicket.Models;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
-using System.Xml.Linq;
+using TTicket.Models.PresentationModels;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -36,7 +36,7 @@ namespace TTicket.WebApi.Controllers
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comments were found"));
 
-                return Ok(new Response<IEnumerable<Comment>>(comments, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<CommentModel>>(comments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -56,7 +56,7 @@ namespace TTicket.WebApi.Controllers
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comment was found"));
 
-                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
+                return Ok(new Response<CommentModel>(comment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -71,19 +71,26 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                if (await _userManager.Get(dto.UserId) == null)
+                var user = await _userManager.Get(dto.UserId);
+                if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound, $"The user was not found"));
 
-                if (await _ticketManager.Get(dto.TicketId) == null)
+                var ticket = await _ticketManager.Get(dto.TicketId);
+                if (ticket == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.TicketNotFound, $"No ticket was not found"));
+                
+                if(ticket.UserId != user.Id || ticket.SupportId != user.Id)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.ForbidAccess, $"Only the client that created the ticket and the support employee can comment"));
+
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.InvalidCommentContent, $"Comment content is required"));
 
-                var comment = new Comment
+                var comment = new CommentModel
                 {
                     TicketId = dto.TicketId,
                     UserId = dto.UserId,
@@ -91,8 +98,8 @@ namespace TTicket.WebApi.Controllers
                     CreatedDate = DateTime.Now
                 };
 
-                await _commentManager.Add(comment);
-                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
+                var result = await _commentManager.Add(comment);
+                return Ok(new Response<CommentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -118,8 +125,8 @@ namespace TTicket.WebApi.Controllers
 
                 comment.Content = dto.Content;
 
-                _commentManager.Update(comment);
-                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
+                var result = await _commentManager.Update(comment);
+                return Ok(new Response<CommentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -139,8 +146,8 @@ namespace TTicket.WebApi.Controllers
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comment was found"));
 
-                _commentManager.Delete(comment);
-                return Ok(new Response<Comment>(comment, ErrorCode.NoError));
+                var result = await _commentManager.Delete(comment);
+                return Ok(new Response<CommentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {

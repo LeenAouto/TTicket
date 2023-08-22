@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
@@ -17,13 +18,15 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Attachment> Get(Guid id)
+        public async Task<AttachmentModel> Get(Guid id)
         {
             try
             {
-                return await _context.Attachment.
+                var attachment = await _context.Attachment.
                     Where(a => a.Id == id).
                     SingleOrDefaultAsync();
+
+                return attachment != null? new AttachmentModel(attachment) : null;
             }
             catch (Exception e)
             {
@@ -32,13 +35,15 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<Attachment> GetByName(string fileName)
+        public async Task<AttachmentModel> GetByName(string fileName)
         {
             try
             {
-                return await _context.Attachment.
+                var attachment = await _context.Attachment.
                     Where(a => a.FileName == fileName).
                     FirstOrDefaultAsync();
+
+                return attachment != null ? new AttachmentModel(attachment) : null;
             }
             catch (Exception e)
             {
@@ -47,20 +52,25 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<Attachment>> GetList(AttachmentListRequestModel model)
+        public async Task<IEnumerable<AttachmentModel>> GetList(AttachmentListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                return await _context.Attachment.
+                var attachments = await _context.Attachment.
                     Where(a => (a.AttachedToId == model.AttachedToId || model.AttachedToId == null)
-                            //&& (a.FileName == model.FileName || model.FileName == null)
-                            //&& (a.Attacher == model.Attacher || model.Attacher == null)
                             ).
                     OrderBy(a => a.Id).
                     Skip(skip).
                     Take(model.PageSize).
                     ToListAsync();
+
+                var attachmentsList = new List<AttachmentModel>();
+                if (attachments.Any())
+                    foreach (var attachment in attachments)
+                        attachmentsList.Add(new AttachmentModel(attachment));
+
+                return attachmentsList;
             }
             catch (Exception e)
             {
@@ -69,13 +79,21 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<Attachment> Add(Attachment attachment)
+        public async Task<AttachmentModel> Add(AttachmentModel attachment)
         {
             try
             {
-                await _context.Attachment.AddAsync(attachment);
+                var a = new Attachment
+                {
+                    AttachedToId = attachment.AttachedToId,
+                    FileName = attachment.FileName,
+                    Attacher = attachment.Attacher
+                };
+
+                await _context.Attachment.AddAsync(a);
                 _context.SaveChanges();
-                return attachment;
+
+                return new AttachmentModel(a);
             }
             catch (Exception e)
             {
@@ -84,13 +102,20 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public Attachment Update(Attachment attachment)
+        public async Task<AttachmentModel> Update(AttachmentModel attachment)
         {
             try
             {
-                _context.Attachment.Update(attachment);
+                var a = await _context.Attachment.Where(a => a.Id == attachment.Id).SingleAsync();
+
+                a.AttachedToId = attachment.AttachedToId;
+                a.FileName = attachment.FileName;
+                a.Attacher = attachment.Attacher;
+
+                _context.Attachment.Update(a);
                 _context.SaveChanges();
-                return attachment;
+
+                return new AttachmentModel(a);
             }
             catch (Exception e)
             {
@@ -99,13 +124,16 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public Attachment Delete(Attachment attachment)
+        public async Task<AttachmentModel> Delete(AttachmentModel attachment)
         {
             try
             {
-                _context.Attachment.Remove(attachment);
+                var a = await _context.Attachment.Where(a => a.Id == attachment.Id).SingleAsync();
+
+                _context.Attachment.Remove(a);
                 _context.SaveChanges();
-                return attachment;
+
+                return new AttachmentModel(a);
             }
             catch (Exception e)
             {

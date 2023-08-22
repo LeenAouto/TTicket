@@ -9,6 +9,7 @@ using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
 using TTicket.DAL.Managers;
 using TTicket.Models;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.UserManagementModels;
 using TTicket.Security.Settings;
@@ -49,7 +50,7 @@ namespace TTicket.Security
                 if (await _userManager.GetByIdentity(request) != null)
                     return new AuthModel { Message = "The phone number is already used in another account" };
 
-                var user = new User
+                var user = new UserModel
                 {
                     Username = model.Username,
                     Password = _hasher.Hash(model.Password),
@@ -109,7 +110,7 @@ namespace TTicket.Security
                 if (await _userManager.GetByIdentity(request) != null)
                     return new AuthModel { Message = "The phone number is already used in another account" };
 
-                var user = new User
+                var user = new UserModel
                 {
                     Username = model.Username,
                     Password = _hasher.Hash(model.Password),
@@ -234,7 +235,7 @@ namespace TTicket.Security
             return Regex.IsMatch(emailAddress, pattern);
         }
 
-        private JwtSecurityToken CreateJwtToken(User user)
+        private JwtSecurityToken CreateJwtToken(UserModel user)
         {
             string userTypeString;
             if (user.TypeUser == UserType.Manager)

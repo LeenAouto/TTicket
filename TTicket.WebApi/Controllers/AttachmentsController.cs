@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
 
@@ -38,7 +39,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.AttachmentsNotFound,
                         $"No attachments were found"));
 
-                return Ok(new Response<IEnumerable<Attachment>>(attachments, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<AttachmentModel>>(attachments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -59,9 +60,8 @@ namespace TTicket.WebApi.Controllers
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.AttachmentNotFound,
                         $"No attachment was found"));
-                //File.Read.
-                //return File().
-                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
+
+                return Ok(new Response<AttachmentModel>(attachment, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -73,11 +73,17 @@ namespace TTicket.WebApi.Controllers
 
         //get download
         [HttpGet("DownloadAttachment")]
-        public async Task<IActionResult> DownloadAttachment([FromQuery] AttachmentDownloadDto dto)
+        public async Task<IActionResult> DownloadAttachment(Guid id)//[FromQuery] AttachmentDownloadDto dto)
         {
             try
             {
-                var targetPath = Path.Combine(GetFilesPath(dto.AttachedToId), dto.FileName);
+                var attachment = await _attachmentManager.Get(id);
+                if (attachment == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.AttachmentNotFound,
+                        $"No attachment was found"));
+
+                var targetPath = Path.Combine(GetFilesPath(attachment.AttachedToId), attachment.FileName);
                 var provider = new FileExtensionContentTypeProvider();
                 if (!provider.TryGetContentType(targetPath, out var contentType))
                     contentType = "application/octet-stream";
@@ -127,15 +133,15 @@ namespace TTicket.WebApi.Controllers
                     await dto.AttachmentFile.CopyToAsync(stream);
                 }
 
-                var attachment = new Attachment
+                var attachment = new AttachmentModel
                 {
                     AttachedToId = dto.AttachedToId,
                     FileName = fileName,
                     Attacher = attacher
                 };
 
-                await _attachmentManager.Add(attachment);
-                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
+                var result = await _attachmentManager.Add(attachment);
+                return Ok(new Response<AttachmentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -156,7 +162,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.AttachmentNotFound,
                         $"No attachment was found"));
 
-                if(dto.AttachmentFile.Length <= 0)
+                if(dto.AttachmentFile == null || dto.AttachmentFile.Length <= 0)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AttachmentRequired,
                         $"Attachment file is required"));
@@ -176,8 +182,8 @@ namespace TTicket.WebApi.Controllers
 
                 attachment.FileName = fileName;
 
-                _attachmentManager.Update(attachment);
-                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
+                var result = await _attachmentManager.Update(attachment);
+                return Ok(new Response<AttachmentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -212,8 +218,8 @@ namespace TTicket.WebApi.Controllers
                     System.IO.File.Delete(targetPath);
                 }
 
-                _attachmentManager.Delete(attachment);
-                return Ok(new Response<Attachment>(attachment, ErrorCode.NoError));
+                var result = await _attachmentManager.Delete(attachment);
+                return Ok(new Response<AttachmentModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {

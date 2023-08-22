@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
-using TTicket.Models;
 using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
@@ -24,7 +22,7 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        [MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] ProductListRequestModel model)
         {
@@ -36,7 +34,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.ProductsNotFound,
                         $"No products were not found"));
 
-                return Ok(new Response<IEnumerable<Product>>(products, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<ProductModel>>(products, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -46,7 +44,8 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        [MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        //[Authorize]
+        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -58,7 +57,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.ProductNotFound,
                         $"No product was not found"));
 
-                return Ok(new Response<Product>(product, ErrorCode.NoError));
+                return Ok(new Response<ProductModel>(product, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -84,12 +83,13 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.ProductNameAlreadyUsed,
                         $"Product name is already used"));
 
-                var product = new Product {
+                var product = new ProductModel
+                {
                     Name = dto.Name
                 };
 
-                await _productManager.Add(product);
-                return Ok(new Response<Product>(product, ErrorCode.NoError));
+                var result = await _productManager.Add(product);
+                return Ok(new Response<ProductModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -111,19 +111,23 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.ProductNotFound,
                         $"No product was not found"));
 
-                if (string.IsNullOrWhiteSpace(dto.Name))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidProductName,
-                        $"Invalid product name"));
+                if(dto.Name != null)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.Name))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidProductName,
+                            $"Invalid product name"));
 
-                if (await _productManager.GetByName(dto.Name) != null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.ProductNameAlreadyUsed,
-                        $"Product name is already used"));
-                
-                product.Name = dto.Name;
-                _productManager.Update(product);
-                return Ok(new Response<Product>(product, ErrorCode.NoError));
+                    if (dto.Name != product.Name && await _productManager.GetByName(dto.Name) != null)
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.ProductNameAlreadyUsed,
+                            $"Product name is already used"));
+
+                    product.Name = dto.Name;
+                }
+
+                var result = await _productManager.Update(product);
+                return Ok(new Response<ProductModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -145,8 +149,8 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.ProductNotFound,
                         $"No product was not found"));
 
-                _productManager.Delete(product);
-                return Ok(new Response<Product>(product, ErrorCode.NoError));
+                var result = await _productManager.Delete(product);
+                return Ok(new Response<ProductModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {

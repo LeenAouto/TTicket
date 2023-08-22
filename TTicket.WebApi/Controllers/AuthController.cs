@@ -59,15 +59,17 @@ namespace TTicket.WebApi.Controllers
                 if(model.Image !=  null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.InvalidImageFormat,
-                        $"Only .png images are allowed, The user has been created with no image."));
+                        $"Only .png images are allowed"));
 
                 var result = await _authManager.RegisterClient(model);
 
-                if(model.Image != null)
-                {
-                    if (!result.IsAuthenticated)
-                        return BadRequest(result.Message);
+                if (!result.IsAuthenticated)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                    ErrorCode.AuthenticationFailed,
+                    result.Message));
 
+                if (model.Image != null)
+                {
                     var filesPath = GetFilesPath();
 
                     if (!Directory.Exists(filesPath))
@@ -95,7 +97,7 @@ namespace TTicket.WebApi.Controllers
         }
 
 
-        [Authorize(Policy = "ManagerPolicy")]
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpPost("RegisterSupport")]
         public async Task<IActionResult> RegisterSupport([FromForm] RegisterViewModel model)
         {
@@ -130,15 +132,17 @@ namespace TTicket.WebApi.Controllers
                 if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.InvalidImageFormat,
-                        $"Only .png images are allowed, The user has been created with no image."));
+                        $"Only .png images are allowed"));
 
-                var result = await _authManager.RegisterClient(model);
+                var result = await _authManager.RegisterSupport(model);
+
+                if (!result.IsAuthenticated)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                    ErrorCode.AuthenticationFailed,
+                    result.Message));
 
                 if (model.Image != null)
                 {
-                    if (!result.IsAuthenticated)
-                        return BadRequest(result.Message);
-
                     var filesPath = GetFilesPath();
 
                     if (!Directory.Exists(filesPath))
@@ -178,8 +182,14 @@ namespace TTicket.WebApi.Controllers
 
                 var result = await _authManager.Login(model);
 
-                if (!(result.IsAuthenticated && result.StatusUser == UserStatus.Active))
-                    return BadRequest(new Response<AuthModel>(result, ErrorCode.AuthenticationFailed, result.Message));
+                if(!result.IsAuthenticated)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.AuthenticationFailed,
+                        result.Message));
+                else if(result.StatusUser != UserStatus.Active)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.AuthenticationFailed,
+                        $"User Account is deactivated"));
 
                 HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
 

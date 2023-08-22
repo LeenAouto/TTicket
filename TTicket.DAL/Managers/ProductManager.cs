@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;
@@ -20,13 +19,15 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Product> Get(Guid id)
+        public async Task<ProductModel> Get(Guid id)
         {
             try
             {
-                return await _context.Product.
+                var product = await _context.Product.
                     Where(p => p.Id == id).
                     SingleOrDefaultAsync();
+
+                return product != null ? new ProductModel(product) : null;
             }
             catch (Exception e)
             {
@@ -35,13 +36,15 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<Product> GetByName(string name)
+        public async Task<ProductModel> GetByName(string name)
         {
             try
             {
-                return await _context.Product.
+                var product = await _context.Product.
                     Where(p => p.Name == name).
                     FirstOrDefaultAsync();
+
+                return product != null? new ProductModel(product) : null;
             }
             catch (Exception e)
             {
@@ -50,17 +53,25 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<Product>> GetList(ProductListRequestModel model)
+        public async Task<IEnumerable<ProductModel>> GetList(ProductListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                return await _context.Product.
+                var products = await _context.Product.
                     Where(p => p.Name == model.Name || model.Name == null).
+                    OrderBy(p => p.Name).
                     Skip(skip).
                     Take(model.PageSize).
-                    OrderBy(p => p.Name).
                     ToListAsync();
+
+                var productList = new List<ProductModel>();
+
+                if (products.Any()) 
+                    foreach (var product in products)
+                        productList.Add(new ProductModel(product));
+
+                return productList;
             }
             catch (Exception e)
             {
@@ -69,13 +80,19 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<Product> Add(Product product)
+        public async Task<ProductModel> Add(ProductModel product)
         {
             try
             {
-                await _context.Product.AddAsync(product);
+                var p = new Product
+                {
+                    Name = product.Name
+                };
+
+                await _context.Product.AddAsync(p);
                 _context.SaveChanges();
-                return product;
+
+                return new ProductModel(p);
             }
             catch (Exception e)
             {
@@ -83,13 +100,18 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-        public Product Update(Product product)
+        public async Task<ProductModel> Update(ProductModel product)
         {
             try
             {
-                _context.Product.Update(product);
+                var p = await _context.Product.Where(p => p.Id == product.Id).SingleAsync();
+
+                p.Name = product.Name;
+
+                _context.Product.Update(p);
                 _context.SaveChanges();
-                return product;
+
+                return new ProductModel(p);
             }
             catch (Exception e)
             {
@@ -98,13 +120,16 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public Product Delete(Product product)
+        public async Task<ProductModel> Delete(ProductModel product)
         {
             try
             {
-                _context.Product.Remove(product);
+                var p = await _context.Product.Where(p => p.Id == product.Id).SingleAsync();
+
+                _context.Product.Remove(p);
                 _context.SaveChanges();
-                return product;
+
+                return new ProductModel(p);
             }
             catch (Exception e)
             {

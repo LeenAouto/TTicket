@@ -1,15 +1,15 @@
-﻿using TTicket.Models;
+﻿using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 
 namespace TTicket.Abstractions.DAL
 {
     public interface IProductManager
     {
-        Task<Product> Get(Guid id);
-        Task<Product> GetByName(string name);
-        Task<IEnumerable<Product>> GetList(ProductListRequestModel model);
-        Task<Product> Add(Product product);
-        Product Update(Product product);
-        Product Delete(Product product);
+        Task<ProductModel> Get(Guid id);
+        Task<ProductModel> GetByName(string name);
+        Task<IEnumerable<ProductModel>> GetList(ProductListRequestModel model);
+        Task<ProductModel> Add(ProductModel product);
+        Task<ProductModel> Update(ProductModel product);
+        Task<ProductModel> Delete(ProductModel product);
     }
 }

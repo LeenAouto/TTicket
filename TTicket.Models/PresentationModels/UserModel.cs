@@ -3,10 +3,25 @@
     public class UserModel
     {
         public UserModel() { }
-        public UserModel(User user, int? ticketCount = null)
+        public UserModel(User user) 
         {
             Id = user.Id;
             Username = user.Username;
+            Password = user.Password;
+            Email = user.Email;
+            MobilePhone = user.MobilePhone;
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            DateOfBirth = user.DateOfBirth;
+            Address = user.Address;
+            TypeUser = user.TypeUser;
+            StatusUser = user.StatusUser;
+        }
+        public UserModel(User user, int? ticketCount)
+        {
+            Id = user.Id;
+            Username = user.Username;
+            Password = user.Password;
             Email = user.Email;
             MobilePhone = user.MobilePhone;
             FirstName = user.FirstName;

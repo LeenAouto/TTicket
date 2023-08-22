@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
+using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 
 namespace TTicket.DAL.Managers
@@ -17,12 +18,13 @@ namespace TTicket.DAL.Managers
             _logger = logger;
         }
 
-        public async Task<Comment> Get(Guid id)
+        public async Task<CommentModel> Get(Guid id)
         {
             try
             {
-                return await _context.Comment.
-                    SingleOrDefaultAsync(c => c.Id == id);
+                var comment = await _context.Comment.SingleOrDefaultAsync(c => c.Id == id);
+
+                return comment != null ? new CommentModel(comment) : null;
             }
             catch (Exception e)
             {
@@ -31,21 +33,27 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<Comment>> GetList(CommentListRequestModel model)
+        public async Task<IEnumerable<CommentModel>> GetList(CommentListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-
-                return await _context.Comment.
+                var comments = await _context.Comment.
                     Where(c => (c.TicketId == model.TicketId || model.TicketId == null)
                             &&(c.UserId == model.UserId || model.UserId == null)
                             &&(c.CreatedDate == model.CreatedDate || model.CreatedDate == null)
                             ).
+                    OrderByDescending(c => c.CreatedDate).
                     Skip(skip).
                     Take(model.PageSize).
-                    OrderBy(c => c.CreatedDate).
                     ToListAsync();
+
+                var commentsList = new List<CommentModel>();
+                if(comments.Any())
+                    foreach(var comment in comments)
+                        commentsList.Add(new CommentModel(comment));
+
+                return commentsList;
             }
             catch (Exception e)
             {
@@ -54,13 +62,23 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<Comment> Add(Comment comment)
+        public async Task<CommentModel> Add(CommentModel comment)
         {
             try
             {
-                await _context.Comment.AddAsync(comment);
+                var c = new Comment
+                {
+                    TicketId = comment.TicketId,
+                    UserId = comment.UserId,
+                    Content = comment.Content,
+                    CreatedDate = comment.CreatedDate
+                };
+
+
+                await _context.Comment.AddAsync(c);
                 _context.SaveChanges();
-                return comment;
+
+                return new CommentModel(c);
             }
             catch (Exception e)
             {
@@ -69,13 +87,21 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public Comment Update(Comment comment)
+        public async Task<CommentModel> Update(CommentModel comment)
         {
             try
             {
-                _context.Comment.Update(comment);
+                var c = await _context.Comment.SingleAsync(c => c.Id == comment.Id);
+
+                c.TicketId = comment.TicketId;
+                c.UserId = comment.UserId;
+                c.Content = comment.Content;
+                c.CreatedDate = comment.CreatedDate;
+
+                _context.Comment.Update(c);
                 _context.SaveChanges();
-                return comment;
+
+                return new CommentModel(c);
             }
             catch (Exception e)
             {
@@ -84,13 +110,16 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public Comment Delete(Comment comment)
+        public async Task<CommentModel> Delete(CommentModel comment)
         {
             try
             {
-                _context.Comment.Remove(comment);
+                var c = await _context.Comment.SingleAsync(c => c.Id == comment.Id);
+
+                _context.Comment.Remove(c);
                 _context.SaveChanges();
-                return comment;
+
+                return new CommentModel(c);
             }
             catch (Exception e)
             {

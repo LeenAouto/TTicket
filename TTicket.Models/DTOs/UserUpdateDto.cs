@@ -6,18 +6,18 @@ namespace TTicket.Models.DTOs
     public class UserUpdateDto
     {
         [MaxLength(256)]
-        public string Username { get; set; } = string.Empty;
+        public string? Username { get; set; }
         [MaxLength(256)]
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; }
         [MaxLength(256)]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; }
         [MaxLength(256)]
-        public string MobilePhone { get; set; } = string.Empty;
+        public string? MobilePhone { get; set; }
         [MaxLength(256)]
-        public string FirstName { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
         [MaxLength(256)]
-        public string LastName { get; set; } = string.Empty;
-        public DateTime DateOfBirth { get; set; } = default;
+        public string? LastName { get; set; }
+        public DateTime? DateOfBirth { get; set; }
         [MaxLength(256)]
         public string? Address { get; set; }
 

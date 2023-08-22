@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Net.Mail;
 using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
@@ -34,14 +31,14 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        [Authorize(Policy = "ManagerPolicy")]
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAll([FromQuery] UserListRequestModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return BadRequest("BadRequest");
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid("Only manager account can query other users info.");
 
                 var users = await _userManager.GetList(model);
                 if (!users.Any())
@@ -64,19 +61,16 @@ namespace TTicket.WebApi.Controllers
         }
 
 
-        //// 
-        //Allow the client / support user to only see his info and no other user
-        //// 
-        [Authorize]
+        //[Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                var uidClaim = HttpContext.User.FindFirstValue("uid");
-                var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
-                if (uidClaim != id.ToString() && userTypeClaim != "1" )
-                    return Forbid("Only manager account can query other users info.");
+                //var uidClaim = HttpContext.User.FindFirstValue("uid");
+                //var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
+                //if (uidClaim != id.ToString() && userTypeClaim != "1" )
+                //    return Forbid("Only manager account can query other users info.");
                 
                 var user = await _userManager.Get(id);
                 if(user == null)
@@ -84,24 +78,9 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.UserNotFound, 
                         $"The user was not found"));
 
-                var userModel = new UserModel
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    MobilePhone = user.MobilePhone,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    DateOfBirth = user.DateOfBirth,
-                    Address = user.Address,
-                    TypeUser = user.TypeUser,
-                    StatusUser = user.StatusUser,
+                user.Image = GetUserImage(user.Id);
 
-                    TicketCount = null,
-                    Image = GetUserImage(user.Id)
-                };
-
-            return Ok(new Response<User>(user, ErrorCode.NoError));
+            return Ok(new Response<UserModel>(user, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -111,8 +90,8 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-
-        [Authorize(Policy = "ManagerPolicy")]
+        
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")] //used by manager
         public async Task<IActionResult> UpdateUser(Guid id, [FromForm] UserUpdateDto dto)
         {
@@ -125,83 +104,97 @@ namespace TTicket.WebApi.Controllers
                         $"Unable to update the user becuase it does not exist"));
 
                 //Validate username
-                if(!_authManager.IsValidUserName(dto.Username))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidUsername,
-                        $"Usernames can only be of English characters"));
+                if(dto.Username != null)
+                {
+                    if (!_authManager.IsValidUserName(dto.Username))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidUsername,
+                            $"Usernames can only be of English characters"));
+                    else if (dto.Username != user.Username && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Username }) != null)
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.UsernameAlreadyUsed,
+                            $"This username is already used by another account"));
 
-                if (dto.Username != user.Username && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Username }) != null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UsernameAlreadyUsed,
-                        $"This username is already used by another account"));
-
-                user.Username = dto.Username;
+                    user.Username = dto.Username;
+                }
 
                 //Validate Email
-                if (!_authManager.IsValidEmailAddress(dto.Email))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidEmailAddress,
-                        $"Invalid email address"));
+                if(dto.Email != null)
+                {
+                    if (!_authManager.IsValidEmailAddress(dto.Email))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidEmailAddress,
+                            $"Invalid email address"));
+                    else if (dto.Email != user.Email && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Email }) != null)
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.UserEmailAlreadyUsed,
+                            $"This email is already used by another account"));
 
-                if (dto.Email != user.Email && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.Email }) != null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserEmailAlreadyUsed,
-                        $"This email is already used by another account"));
-
-                user.Email = dto.Email;
+                    user.Email = dto.Email;
+                }
 
                 //Validate mobile number
-                if (!_authManager.IsValidMobileNumber(dto.MobilePhone))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidPhoneNumber,
-                        $"Phone number must start with 05 and be exactly 10 digits"));
+                if(dto.MobilePhone != null)
+                {
+                    if (!_authManager.IsValidMobileNumber(dto.MobilePhone))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidPhoneNumber,
+                            $"Phone number must start with 05 and be exactly 10 digits"));
+                    else if (dto.MobilePhone != user.MobilePhone && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.MobilePhone }) != null)
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.UserPhoneAlreadyUsed,
+                            $"This mobile phone number is already used by another account"));
 
-                if (dto.MobilePhone != user.MobilePhone && await _userManager.GetByIdentity(new UserRequestModel { Identity = dto.MobilePhone }) != null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserPhoneAlreadyUsed,
-                        $"This mobile phone number is already used by another account"));
-
-                user.MobilePhone = dto.MobilePhone;
+                    user.MobilePhone = dto.MobilePhone;
+                }
 
                 //Validate password
-                if(!_authManager.IsValidPassword(dto.Password))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidPassword,
-                        $"Passwords must be of at least 8 characters, only English characters, " +
-                        $"contains at least one digit and one special character."));
-
-                if (dto.Image != null && !".png".Contains(Path.GetExtension(dto.Image.FileName).ToLower()))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidImageFormat,
-                        $"Only .png images are allowed, The user has been created with no image."));
-
-                if (dto.Image != null) 
+                if(dto.Password != null)
                 {
-                    var filesPath = GetFilesPath();
+                    if (!_authManager.IsValidPassword(dto.Password))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidPassword,
+                            $"Passwords must be of at least 8 characters, only English characters, " +
+                            $"contains at least one digit and one special character."));
 
-                    if (!Directory.Exists(filesPath))
-                        Directory.CreateDirectory(filesPath);
+                    user.Password = _hasher.Hash(dto.Password);
+                }
 
-                    var fileName = GenerateFileName(user.Id);
-
-                    var targetPath = Path.Combine(filesPath, fileName);
-                    using (var stream = new FileStream(targetPath, FileMode.Create))
+                //Check image
+                if (dto.Image != null)
+                {
+                    if (!".png".Contains(Path.GetExtension(dto.Image.FileName).ToLower()))
+                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                            ErrorCode.InvalidImageFormat,
+                            $"Only .png images are allowed, The user has been created with no image."));
+                    else
                     {
-                        await dto.Image.CopyToAsync(stream);
+                        var filesPath = GetFilesPath();
+
+                        if (!Directory.Exists(filesPath))
+                            Directory.CreateDirectory(filesPath);
+
+                        var fileName = GenerateFileName(user.Id);
+
+                        var targetPath = Path.Combine(filesPath, fileName);
+                        using (var stream = new FileStream(targetPath, FileMode.Create))
+                        {
+                            await dto.Image.CopyToAsync(stream);
+                        }
                     }
                 }
 
-                user.Password = _hasher.Hash(dto.Password);
-                
                 user.FirstName = string.IsNullOrEmpty(dto.FirstName)? user.FirstName : dto.FirstName;
 
                 user.LastName = string.IsNullOrEmpty(dto.LastName)? user.FirstName : dto.LastName;
 
-                user.DateOfBirth = dto.DateOfBirth == default? user.DateOfBirth : dto.DateOfBirth;
+                user.DateOfBirth = dto.DateOfBirth?? user.DateOfBirth;
+
                 user.Address = string.IsNullOrEmpty(dto.Address) ? user.Address : dto.Address;
 
-                _userManager.Update(user);
-                return Ok(new Response<User>(user, ErrorCode.NoError));
+                var result = await _userManager.Update(user);
+
+                return Ok(new Response<UserModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -211,9 +204,9 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        [Authorize(Policy = "ManagerPolicy")]
-        [HttpPut("activate/{id}")]
-        public async Task<IActionResult> Activate(Guid id)
+        //[Authorize(Policy = "ManagerPolicy")]
+        [HttpPut("SetUserStatus/{Id}")]
+        public async Task<IActionResult> SetUserStatus(Guid id, UserStatus status)
         {
             try
             {
@@ -222,58 +215,22 @@ namespace TTicket.WebApi.Controllers
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound,
                         $"No user with id = {id} was found"));
+                
+                user.StatusUser = status;
 
-                if(user.StatusUser == UserStatus.Active)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserAlreadyActive,
-                        $"The user is already active"));
+                var result = await _userManager.Update(user);
 
-                user.StatusUser = UserStatus.Active;
-
-                _userManager.Update(user);
-                return Ok(new Response<User>(user, ErrorCode.NoError));
-
+                return Ok(new Response<UserModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
                     ErrorCode.LoggedError, e.Message));
             }
         }
-
-        [Authorize(Policy = "ManagerPolicy")]
-        [HttpPut("deactivate/{id}")]
-        public async Task<IActionResult> Dectivate(Guid id)
-        {
-            try
-            {
-                var user = await _userManager.Get(id);
-                if (user == null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserNotFound,
-                        $"Unable to deactivate the user becuase it does not exist"));
-
-                if (user.StatusUser == UserStatus.Inactive)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserAlreadyInactive,
-                        $"The user is already inactive"));
-
-                user.StatusUser = UserStatus.Inactive;
-
-                _userManager.Update(user);
-                return Ok(new Response<User>(user, ErrorCode.NoError));
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
-                    ErrorCode.LoggedError, e.Message));
-            }
-        }
-
-        [Authorize(Policy = "ManagerPolicy")]
+        
+        //[Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -299,8 +256,8 @@ namespace TTicket.WebApi.Controllers
                     System.IO.File.Delete(targetPath);
                 }
 
-                _userManager.Delete(user);
-                return Ok(new Response<User>(user, ErrorCode.NoError));
+                var result = await _userManager.Delete(user);
+                return Ok(new Response<UserModel>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -309,7 +266,7 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
-
+        
         [NonAction]
         private string GetFilesPath()
         {
@@ -340,5 +297,7 @@ namespace TTicket.WebApi.Controllers
 
             return imagePath;
         }
+
+        
     }
 }

@@ -289,3 +289,8 @@ D:\Program Files\source\repos\TTicket\TTicket.WebApi\obj\Release\net6.0\refint\T
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\obj\Release\net6.0\TTicket.WebApi.pdb
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\obj\Release\net6.0\TTicket.WebApi.genruntimeconfig.cache
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\obj\Release\net6.0\ref\TTicket.WebApi.dll
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\TTicket.WebApi.staticwebassets.runtime.json
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.dll
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore.dll
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\web.config
