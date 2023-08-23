@@ -24,5 +24,7 @@
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public TicketStatus Status { get; set; }
+
+        public IEnumerable<AttachmentModel>? AttachmentsList { get; set; }
     }
 }

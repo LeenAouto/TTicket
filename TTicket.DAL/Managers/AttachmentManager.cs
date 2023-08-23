@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -24,9 +26,10 @@ namespace TTicket.DAL.Managers
             {
                 var attachment = await _context.Attachment.
                     Where(a => a.Id == id).
+                    Select(a => new AttachmentModel(a)).
                     SingleOrDefaultAsync();
 
-                return attachment != null? new AttachmentModel(attachment) : null;
+                return attachment;
             }
             catch (Exception e)
             {
@@ -41,9 +44,10 @@ namespace TTicket.DAL.Managers
             {
                 var attachment = await _context.Attachment.
                     Where(a => a.FileName == fileName).
+                    Select(a => new AttachmentModel(a)).
                     FirstOrDefaultAsync();
 
-                return attachment != null ? new AttachmentModel(attachment) : null;
+                return attachment;
             }
             catch (Exception e)
             {
@@ -52,25 +56,25 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<AttachmentModel>> GetList(AttachmentListRequestModel model)
+        public async Task<PagedResponse<AttachmentModel>> GetList(AttachmentListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                var attachments = await _context.Attachment.
-                    Where(a => (a.AttachedToId == model.AttachedToId || model.AttachedToId == null)
-                            ).
+
+                var query = _context.Attachment.
+                    Where(a => a.AttachedToId == model.AttachedToId || model.AttachedToId == null);
+
+                var totalCount = await query.CountAsync();
+
+                var attachments = await query.
                     OrderBy(a => a.Id).
                     Skip(skip).
                     Take(model.PageSize).
+                    Select(a => new AttachmentModel(a)).
                     ToListAsync();
 
-                var attachmentsList = new List<AttachmentModel>();
-                if (attachments.Any())
-                    foreach (var attachment in attachments)
-                        attachmentsList.Add(new AttachmentModel(attachment));
-
-                return attachmentsList;
+                return new PagedResponse<AttachmentModel>(attachments, totalCount);
             }
             catch (Exception e)
             {

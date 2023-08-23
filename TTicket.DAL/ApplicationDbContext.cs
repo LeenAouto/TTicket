@@ -32,6 +32,18 @@ namespace TTicket.DAL
                 }
                 );
 
+            modelBuilder.Entity<Product>()
+                .HasData(
+                new Product { Id = Guid.NewGuid(), Name = "RiCH"},
+                new Product { Id = Guid.NewGuid(), Name = "Ole5"},
+                new Product { Id = Guid.NewGuid(), Name = "Availo"},
+                new Product { Id = Guid.NewGuid(), Name = "Dots"},
+                new Product { Id = Guid.NewGuid(), Name = "Reedoo"},
+                new Product { Id = Guid.NewGuid(), Name = "Sigma5"},
+                new Product { Id = Guid.NewGuid(), Name = "Ibraq"},
+                new Product { Id = Guid.NewGuid(), Name = "Msegat"}
+                );
+
             //Setting Guid to be auto-gnerated 
             modelBuilder.Entity<User>()
                 .Property(u => u.Id)

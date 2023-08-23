@@ -3,6 +3,6 @@
     public class TicketSetStatusDto
     {
         public Guid SupportId { get; set; }
-        public TicketStatus Status { get; set; }
+        //public TicketStatus Status { get; set; }
     }
 }

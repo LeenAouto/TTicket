@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Net;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -23,10 +23,12 @@ namespace TTicket.DAL.Managers
         {
             try
             {
-                return await _context.User.
+                var user = await _context.User.
                     Where(u => u.Id == id).
                     Select(u => new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null)).
                     SingleOrDefaultAsync();
+
+                return user;
             }
             catch (Exception e)
             {
@@ -34,15 +36,17 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-        public async Task<UserModel> GetByIdentity(UserRequestModel model)
+        public async Task<SecureUserModel> GetByIdentity(UserRequestModel model)
         {
             try
             {
-                return await _context.User.
+                var user = await _context.User.
                 Where(u => (u.Id == model.Id || u.Username == model.Identity || u.Email == model.Identity || u.MobilePhone == model.Identity)
                         && (u.TypeUser == model.TypeUser || model.TypeUser == null)).
-                Select(u => new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null)).
+                Select(u => new SecureUserModel(u)).
                 FirstOrDefaultAsync();
+
+                return user;
             }
             catch (Exception e)
             {
@@ -50,26 +54,31 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-        public async Task<IEnumerable<UserModel>> GetList(UserListRequestModel model)
+        public async Task<PagedResponse<UserModel>> GetList(UserListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                var users = await _context.User.
+
+                var query = _context.User.
                     Where(u => (u.Username == model.Username || model.Username == null)
                             && (u.Email == model.Email || model.Email == null)
                             && (u.MobilePhone == model.MobilePhone || model.MobilePhone == null)
                             && (u.FirstName == model.FirstName || model.FirstName == null)
                             && (u.LastName == model.LastName || model.LastName == null)
                             && (u.TypeUser == model.TypeUser || model.TypeUser == null)
-                            && (u.StatusUser == model.StatusUser || model.StatusUser == null)
-                            ).
+                            && (u.StatusUser == model.StatusUser || model.StatusUser == null));
+
+                var totalCount = await query.CountAsync();
+
+                var users = await query.
                     OrderBy(u => u.TypeUser).
                     Skip(skip).
                     Take(model.PageSize).
                     Select(u => new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null)).
                     ToListAsync();
-                return users;
+
+                return new PagedResponse<UserModel>(users, totalCount);
             }
             catch (Exception e)
             {
@@ -78,7 +87,7 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<UserModel> Add(UserModel user)
+        public async Task<UserModel> Add(SecureUserModel user)
         {
             try
             {
@@ -98,7 +107,7 @@ namespace TTicket.DAL.Managers
 
                 await _context.User.AddAsync(u);
                 _context.SaveChanges();
-                return new UserModel(u);
+                return new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null);
             }
             catch (Exception e)
             {
@@ -107,7 +116,7 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<UserModel> Update(UserModel user)
+        public async Task<UserModel> Update(SecureUserModel user)
         {
             try
             {
@@ -129,7 +138,7 @@ namespace TTicket.DAL.Managers
                 _context.User.Update(u);
                 _context.SaveChanges();
 
-                return new UserModel(u);
+                return new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null);
             }
             catch (Exception e)
             {
@@ -147,7 +156,7 @@ namespace TTicket.DAL.Managers
                 _context.User.Remove(u);
                 _context.SaveChanges();
 
-                return new UserModel(u);
+                return new UserModel(u, u.TypeUser == UserType.Client ? _context.Ticket.Count(t => t.UserId == u.Id) : null);
             }
             catch (Exception e)
             {

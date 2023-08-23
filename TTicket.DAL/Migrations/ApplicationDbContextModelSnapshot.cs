@@ -41,7 +41,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Attachment", (string)null);
+                    b.ToTable("Attachment");
                 });
 
             modelBuilder.Entity("TTicket.Models.Comment", b =>
@@ -70,7 +70,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment", (string)null);
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("TTicket.Models.Product", b =>
@@ -86,7 +86,49 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0be7fd1c-2ce9-49b5-8215-106f5603da6e"),
+                            Name = "RiCH"
+                        },
+                        new
+                        {
+                            Id = new Guid("a72de71b-2614-4950-9550-8f03ab9433e4"),
+                            Name = "Ole5"
+                        },
+                        new
+                        {
+                            Id = new Guid("a9f33e03-e63e-49d9-b0dc-fab15e1b29f9"),
+                            Name = "Availo"
+                        },
+                        new
+                        {
+                            Id = new Guid("efb6dd29-ed26-48c8-a348-e2b59bf43263"),
+                            Name = "Dots"
+                        },
+                        new
+                        {
+                            Id = new Guid("d38d6e40-97a3-4658-be34-fec26c2be5ae"),
+                            Name = "Reedoo"
+                        },
+                        new
+                        {
+                            Id = new Guid("fc8456a9-7300-48c4-979a-4db868d88046"),
+                            Name = "Sigma5"
+                        },
+                        new
+                        {
+                            Id = new Guid("3cedb0e2-8468-4df9-ad3e-b46d55828a8d"),
+                            Name = "Ibraq"
+                        },
+                        new
+                        {
+                            Id = new Guid("c1ad4403-588b-4186-9970-45affacae3be"),
+                            Name = "Msegat"
+                        });
                 });
 
             modelBuilder.Entity("TTicket.Models.Ticket", b =>
@@ -130,7 +172,7 @@ namespace TTicket.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ticket", (string)null);
+                    b.ToTable("Ticket");
                 });
 
             modelBuilder.Entity("TTicket.Models.User", b =>
@@ -178,19 +220,19 @@ namespace TTicket.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("59595c35-2424-45db-ab48-9ee6934de7fe"),
+                            Id = new Guid("96448664-d6c8-42e4-9f93-65dccdb6def7"),
                             Address = "Saudi Arabia, Qassim, Buraydah",
                             DateOfBirth = new DateTime(2000, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "leen.aouto@gmail.com",
                             FirstName = "Leen",
                             LastName = "Aouto",
                             MobilePhone = "0545529216",
-                            Password = "VHXdBussrAks4If4DarVZg==;fHXwTTrzNGgJttELwo9s305e3zhbx+T+ns+vLn/0nFw=",
+                            Password = "euFyR/GNXbvnR5m67HGT5A==;6V1GBtK3fSqamrMoLbEt/pGeekF5czrDQKIMcDwJ9Cg=",
                             StatusUser = (byte)1,
                             TypeUser = (byte)1,
                             Username = "manager"

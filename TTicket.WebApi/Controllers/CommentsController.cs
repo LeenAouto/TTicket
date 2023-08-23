@@ -5,6 +5,10 @@ using TTicket.Models;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
 using TTicket.Models.PresentationModels;
+using Microsoft.AspNetCore.Authorization;
+using TTicket.Security.Policies;
+using System.Security.Claims;
+using System.Net.Sockets;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -26,17 +30,36 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet("GetComments")]
         public async Task<IActionResult> GetAll([FromQuery] CommentListRequestModel model)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+
+                if(CurrentUserType != "1")
+                {
+                    var ticket = await _ticketManager.Get(model.TicketId);
+                    if (ticket == null)
+                        return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
+
+                    if (currentUserId != ticket.UserId && currentUserId != ticket.SupportId)
+                        return Forbid();
+                }
+
                 var comments = await _commentManager.GetList(model);
-                if (!comments.Any())
+                if (!comments.Items.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comments were found"));
 
-                return Ok(new Response<IEnumerable<CommentModel>>(comments, ErrorCode.NoError));
+                return Ok(new Response<PagedResponse<CommentModel>>(comments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -46,15 +69,34 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comment was found"));
+
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+
+                if (CurrentUserType != "1")
+                {
+                    var ticket = await _ticketManager.Get(comment.TicketId);
+                    if (ticket == null)
+                        return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.TicketNotFound,
+                        $"No ticket was found"));
+
+                    if (currentUserId != ticket.UserId && currentUserId != ticket.SupportId)
+                        return Forbid();
+                }
 
                 return Ok(new Response<CommentModel>(comment, ErrorCode.NoError));
             }
@@ -66,24 +108,31 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CommentAddDto dto)
         {
             try
             {
-                var user = await _userManager.Get(dto.UserId);
-                if (user == null)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.UserNotFound, $"The user was not found"));
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+
+                //var user = await _userManager.Get(dto.UserId);
+                //if (user == null)
+                //    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                //        ErrorCode.UserNotFound, $"The user was not found"));
 
                 var ticket = await _ticketManager.Get(dto.TicketId);
                 if (ticket == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.TicketNotFound, $"No ticket was not found"));
-                
-                if(ticket.UserId != user.Id || ticket.SupportId != user.Id)
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.ForbidAccess, $"Only the client that created the ticket and the support employee can comment"));
+
+                if (ticket.UserId != currentUserId || ticket.SupportId != currentUserId)
+                    return Forbid();
+                    //return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                    //    ErrorCode.ForbidAccess, $"Only the client that created the ticket and the support employee can comment"));
 
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
@@ -93,7 +142,7 @@ namespace TTicket.WebApi.Controllers
                 var comment = new CommentModel
                 {
                     TicketId = dto.TicketId,
-                    UserId = dto.UserId,
+                    UserId = currentUserId,
                     Content = dto.Content,
                     CreatedDate = DateTime.Now
                 };
@@ -109,15 +158,24 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CommentUpdateDto dto)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.CommentsNotFound, $"No comment was found"));
+
+                if (comment.UserId != currentUserId)
+                    return Forbid();
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
@@ -136,11 +194,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },

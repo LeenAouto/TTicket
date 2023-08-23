@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
 using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
@@ -22,19 +23,22 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] ProductListRequestModel model)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var products = await _productManager.GetList(model);
-                if (!products.Any())
+                if (!products.Items.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.ProductsNotFound,
                         $"No products were not found"));
 
-                return Ok(new Response<IEnumerable<ProductModel>>(products, ErrorCode.NoError));
+                return Ok(new Response<PagedResponse<ProductModel>>(products, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -44,13 +48,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //[Authorize]
-        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy;ClientPolicy")]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var product = await _productManager.Get(id);
                 if (product == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
@@ -66,8 +72,8 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
-        
-        //[MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy")]
+
+        [NonAction]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] ProductDto dto)
         {
@@ -98,8 +104,8 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
-
-        //[Authorize(Policy = "ManagerPolicy")]
+        
+        [NonAction]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] ProductDto dto)
         {
@@ -137,7 +143,8 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //[Authorize(Policy = "ManagerPolicy")]
+
+        [NonAction]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

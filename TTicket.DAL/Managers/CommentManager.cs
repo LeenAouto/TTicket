@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -22,9 +24,22 @@ namespace TTicket.DAL.Managers
         {
             try
             {
-                var comment = await _context.Comment.SingleOrDefaultAsync(c => c.Id == id);
+                var comment = await _context.Comment.
+                    Where(c => c.Id == id).
+                    Select(c => new CommentModel(c)).
+                    SingleOrDefaultAsync();
 
-                return comment != null ? new CommentModel(comment) : null;
+                if (comment != null)
+                {
+                    var attachments = await _context.Attachment.
+                        Where(a => a.AttachedToId == comment.Id).
+                        Select(a => new AttachmentModel(a)).
+                    ToListAsync();
+
+                    comment.AttachmentsList = attachments;
+                }
+
+                return comment;
             }
             catch (Exception e)
             {
@@ -33,27 +48,28 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<CommentModel>> GetList(CommentListRequestModel model)
+        public async Task<PagedResponse<CommentModel>> GetList(CommentListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                var comments = await _context.Comment.
+
+                var query = _context.Comment.
                     Where(c => (c.TicketId == model.TicketId || model.TicketId == null)
-                            &&(c.UserId == model.UserId || model.UserId == null)
-                            &&(c.CreatedDate == model.CreatedDate || model.CreatedDate == null)
-                            ).
+                            //&& (c.UserId == model.UserId || model.UserId == null)
+                            //&& (c.CreatedDate == model.CreatedDate || model.CreatedDate == null)
+                            );
+
+                var totalCount = await query.CountAsync();
+
+                var comments = await query.
                     OrderByDescending(c => c.CreatedDate).
                     Skip(skip).
                     Take(model.PageSize).
+                    Select(c => new CommentModel(c)).
                     ToListAsync();
 
-                var commentsList = new List<CommentModel>();
-                if(comments.Any())
-                    foreach(var comment in comments)
-                        commentsList.Add(new CommentModel(comment));
-
-                return commentsList;
+                return new PagedResponse<CommentModel>(comments, totalCount);
             }
             catch (Exception e)
             {

@@ -1,5 +1,6 @@
 ﻿using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.Abstractions.DAL
 {
@@ -7,7 +8,7 @@ namespace TTicket.Abstractions.DAL
     {
         Task<AttachmentModel> Get(Guid id);
         Task<AttachmentModel> GetByName(string fileName);
-        Task<IEnumerable<AttachmentModel>> GetList(AttachmentListRequestModel model);
+        Task<PagedResponse<AttachmentModel>> GetList(AttachmentListRequestModel model);
         Task<AttachmentModel> Add(AttachmentModel attachment);
         Task<AttachmentModel> Update(AttachmentModel attachment);
         Task<AttachmentModel> Delete(AttachmentModel attachment);

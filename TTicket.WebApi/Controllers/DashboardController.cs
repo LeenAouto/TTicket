@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
 using TTicket.Models.ResponseModels;
 
@@ -18,12 +19,15 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("TicketsStatus")]
         public IActionResult TicketsStatus()
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var ticketsStatus = _ticketManager.TicketsStatus();
 
                 return Ok(new Response<IQueryable>(ticketsStatus, ErrorCode.NoError));
@@ -36,12 +40,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("ProductiveEmp")]
         public IActionResult ProductiveEmp()
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var productiveEmp = _ticketManager.ProductiveEmp();
 
                 return Ok(new Response<IQueryable>(productiveEmp, ErrorCode.NoError));

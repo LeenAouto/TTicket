@@ -3,25 +3,10 @@
     public class UserModel
     {
         public UserModel() { }
-        public UserModel(User user) 
-        {
-            Id = user.Id;
-            Username = user.Username;
-            Password = user.Password;
-            Email = user.Email;
-            MobilePhone = user.MobilePhone;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            DateOfBirth = user.DateOfBirth;
-            Address = user.Address;
-            TypeUser = user.TypeUser;
-            StatusUser = user.StatusUser;
-        }
         public UserModel(User user, int? ticketCount)
         {
             Id = user.Id;
             Username = user.Username;
-            Password = user.Password;
             Email = user.Email;
             MobilePhone = user.MobilePhone;
             FirstName = user.FirstName;
@@ -36,7 +21,6 @@
 
         public Guid Id { get; set; }
         public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string MobilePhone { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -47,7 +31,25 @@
         public UserStatus StatusUser { get; set; }
 
         public int? TicketCount { get; set; } = null;
+    }
 
-        public string? Image { get; set; } = null;
+    public class SecureUserModel : UserModel
+    {
+        public SecureUserModel() { }
+        public SecureUserModel(User user)
+        {
+            Id = user.Id;
+            Username = user.Username;
+            Password = user.Password;
+            Email = user.Email;
+            MobilePhone = user.MobilePhone;
+            FirstName = user.FirstName;
+            LastName = user.LastName;
+            DateOfBirth = user.DateOfBirth;
+            Address = user.Address;
+            TypeUser = user.TypeUser;
+            StatusUser = user.StatusUser;
+        }
+        public string Password { get; set; } = string.Empty;
     }
 }

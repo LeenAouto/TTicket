@@ -63,10 +63,10 @@ namespace TTicket.WebApi.Controllers
 
                 var result = await _authManager.RegisterClient(model);
 
-                if (!result.IsAuthenticated)
+                if (!result.IsRegistered)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                    ErrorCode.AuthenticationFailed,
-                    result.Message));
+                        ErrorCode.RegisterFailed,
+                        result.Message));
 
                 if (model.Image != null)
                 {
@@ -84,9 +84,7 @@ namespace TTicket.WebApi.Controllers
                     }
                 }
 
-                HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
-
-                return Ok(new Response<AuthModel>(result, ErrorCode.NoError));
+                return Ok(new Response<RegisterResponse>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -97,7 +95,7 @@ namespace TTicket.WebApi.Controllers
         }
 
 
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPost("RegisterSupport")]
         public async Task<IActionResult> RegisterSupport([FromForm] RegisterViewModel model)
         {
@@ -136,10 +134,10 @@ namespace TTicket.WebApi.Controllers
 
                 var result = await _authManager.RegisterSupport(model);
 
-                if (!result.IsAuthenticated)
+                if(!result.IsRegistered)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                    ErrorCode.AuthenticationFailed,
-                    result.Message));
+                        ErrorCode.RegisterFailed,
+                        result.Message));
 
                 if (model.Image != null)
                 {
@@ -157,9 +155,7 @@ namespace TTicket.WebApi.Controllers
                     }
                 }
 
-                HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
-
-                return Ok(new Response<AuthModel>(result, ErrorCode.NoError));
+                return Ok(new Response<RegisterResponse>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -186,14 +182,15 @@ namespace TTicket.WebApi.Controllers
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AuthenticationFailed,
                         result.Message));
-                else if(result.StatusUser != UserStatus.Active)
+                
+                if(result.StatusUser != UserStatus.Active)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AuthenticationFailed,
                         $"User Account is deactivated"));
 
                 HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
 
-                return Ok(new Response<AuthModel>(result, ErrorCode.NoError));
+                return Ok(new Response<LoginResponse>(result, ErrorCode.NoError));
             }
             catch (Exception e)
             {

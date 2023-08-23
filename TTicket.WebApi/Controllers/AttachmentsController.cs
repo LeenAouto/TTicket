@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;
@@ -28,18 +30,22 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet("GetAttachments")]
         public async Task<IActionResult> GetAll([FromQuery] AttachmentListRequestModel model)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var attachments = await _attachmentManager.GetList(model);
-                if (!attachments.Any())
+                if (!attachments.Items.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found"},
                         ErrorCode.AttachmentsNotFound,
                         $"No attachments were found"));
 
-                return Ok(new Response<IEnumerable<AttachmentModel>>(attachments, ErrorCode.NoError));
+                return Ok(new Response<PagedResponse<AttachmentModel>>(attachments, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -49,12 +55,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //getinfo 
+        [Authorize]
         [HttpGet("GetInfo/{id}")]
         public async Task<IActionResult> GetInfo(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
@@ -71,12 +80,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //get download
+        [Authorize]
         [HttpGet("DownloadAttachment")]
         public async Task<IActionResult> DownloadAttachment(Guid id)//[FromQuery] AttachmentDownloadDto dto)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
@@ -99,12 +111,16 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //Upload 
+
+        [Authorize] 
         [HttpPost("UploadAttachment")]
         public async Task<IActionResult> UploadAttachment([FromForm] AttachmentAddDto dto)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 AttacherType attacher;
                 if (await _ticketManager.Get(dto.AttachedToId) != null)
                     attacher = AttacherType.Ticket;
@@ -151,11 +167,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] AttachmentUpdateDto dto)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
@@ -193,11 +213,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },

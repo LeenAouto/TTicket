@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
-using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -25,9 +25,10 @@ namespace TTicket.DAL.Managers
             {
                 var product = await _context.Product.
                     Where(p => p.Id == id).
+                    Select(p => new ProductModel(p)).
                     SingleOrDefaultAsync();
 
-                return product != null ? new ProductModel(product) : null;
+                return product;
             }
             catch (Exception e)
             {
@@ -42,9 +43,10 @@ namespace TTicket.DAL.Managers
             {
                 var product = await _context.Product.
                     Where(p => p.Name == name).
+                    Select(p => new ProductModel(p)).
                     FirstOrDefaultAsync();
 
-                return product != null? new ProductModel(product) : null;
+                return product;
             }
             catch (Exception e)
             {
@@ -53,25 +55,25 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<IEnumerable<ProductModel>> GetList(ProductListRequestModel model)
+        public async Task<PagedResponse<ProductModel>> GetList(ProductListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                var products = await _context.Product.
-                    Where(p => p.Name == model.Name || model.Name == null).
-                    OrderBy(p => p.Name).
-                    Skip(skip).
-                    Take(model.PageSize).
-                    ToListAsync();
 
-                var productList = new List<ProductModel>();
+                var query = _context.Product.
+                  Where(p => p.Name == model.Name || model.Name == null);
 
-                if (products.Any()) 
-                    foreach (var product in products)
-                        productList.Add(new ProductModel(product));
+                var totalCount = await query.CountAsync();
 
-                return productList;
+                var products = await query.
+                  OrderBy(p => p.Name).
+                  Skip(skip).
+                  Take(model.PageSize).
+                  Select(p => new ProductModel(p)).
+                  ToListAsync();
+
+                return new PagedResponse<ProductModel>(products, totalCount);
             }
             catch (Exception e)
             {

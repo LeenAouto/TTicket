@@ -28,6 +28,7 @@
         UserAlreadyInactive = 1302,
 
         AuthenticationFailed = 1401,
+        RegisterFailed = 1402,
 
 
         //Attachments errors

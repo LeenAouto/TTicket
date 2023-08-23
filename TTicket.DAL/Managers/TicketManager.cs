@@ -4,6 +4,7 @@ using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.DAL.Managers
 {
@@ -22,9 +23,22 @@ namespace TTicket.DAL.Managers
         {
             try
             {
-                var ticket = await _context.Ticket.Where(t => t.Id == id).SingleOrDefaultAsync();
+                var ticket = await _context.Ticket.
+                    Where(t => t.Id == id).
+                    Select(t => new TicketModel(t)).
+                    SingleOrDefaultAsync();
 
-                return ticket != null? new TicketModel(ticket) : null;
+                if(ticket != null)
+                {
+                    var attachments = await _context.Attachment.
+                        Where(a => a.AttachedToId == ticket.Id).
+                        Select(a => new AttachmentModel(a)).
+                        ToListAsync();
+
+                    ticket.AttachmentsList = attachments;
+                }
+
+                return ticket;
             }
             catch (Exception e)
             {
@@ -33,46 +47,46 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<TicketModel> GetByName(string name)
-        {
-            try
-            {
-                var ticket = await _context.Ticket.Where(t => t.Name == name).FirstOrDefaultAsync();
+        //public async Task<TicketModel> GetByName(string name)
+        //{
+        //    try
+        //    {
+        //        var ticket = await _context.Ticket.Where(t => t.Name == name).FirstOrDefaultAsync();
 
-                return ticket != null ? new TicketModel(ticket) : null;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
+        //        return ticket != null ? new TicketModel(ticket) : null;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, "An Error Occured.");
+        //        throw;
+        //    }
+        //}
 
-        public async Task<IEnumerable<TicketModel>> GetList(TicketListRequestModel model)
+        public async Task<PagedResponse<TicketModel>> GetList(TicketListRequestModel model)
         {
             try
             {
                 var skip = (model.PageNumber - 1) * model.PageSize;
-                var tickets =  await _context.Ticket.
+
+                var query = _context.Ticket.
                     Where(t => (t.UserId == model.UserId || model.UserId == null)
-                            &&(t.SupportId == model.SupportId || model.SupportId == null)
-                            &&(t.ProductId == model.SupportId || model.ProductId == null)
-                            &&(t.Name == model.Name || model.Name == null)
-                            &&(t.CreatedDate == model.CreatedDate || model.CreatedDate == null)
-                            &&(t.UpdatedDate == model.UpdatedDate || model.UpdatedDate == null)
-                            &&(t.Status == model.Status || model.Status == null)).
+                            && (t.SupportId == model.SupportId || model.SupportId == null)
+                            && (t.ProductId == model.SupportId || model.ProductId == null)
+                            && (t.Name == model.Name || model.Name == null)
+                            && (t.CreatedDate == model.CreatedDate || model.CreatedDate == null)
+                            && (t.UpdatedDate == model.UpdatedDate || model.UpdatedDate == null)
+                            && (t.Status == model.Status || model.Status == null));
+
+                var totalCount = await query.CountAsync();
+
+                var tickets =  await query.
                     OrderByDescending(t => t.CreatedDate).
                     Skip(skip).
                     Take(model.PageSize).
+                    Select(t => new TicketModel(t)).
                     ToListAsync();
 
-                var ticketsList = new List<TicketModel>();
-
-                if (tickets.Any())
-                    foreach (var ticket in tickets)
-                        ticketsList.Add(new TicketModel(ticket));
-
-                return ticketsList;
+                return new PagedResponse<TicketModel>(tickets, totalCount);
             }
             catch (Exception e)
             {

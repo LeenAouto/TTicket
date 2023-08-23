@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
+using TTicket.DAL.Managers;
 using TTicket.Models;
 using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
@@ -31,26 +34,22 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAll([FromQuery] UserListRequestModel model)
         {
             try
             {
-                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                //    return Forbid("Only manager account can query other users info.");
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
 
                 var users = await _userManager.GetList(model);
-                if (!users.Any())
+                if (!users.Items.Any())
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.UsersNotFound,
                         $"No users were found"));
-                foreach (var user in users)
-                {
-                    user.Image = GetUserImage(user.Id);
-                }
 
-                return Ok(new Response<IEnumerable<UserModel>>(users, ErrorCode.NoError));
+                return Ok(new Response<PagedResponse<UserModel>>(users, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -61,24 +60,27 @@ namespace TTicket.WebApi.Controllers
         }
 
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                //var uidClaim = HttpContext.User.FindFirstValue("uid");
-                //var userTypeClaim = HttpContext.User.FindFirstValue("TypeUser");
-                //if (uidClaim != id.ToString() && userTypeClaim != "1" )
-                //    return Forbid("Only manager account can query other users info.");
-                
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+                else
+                {
+                    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                    if (currentUserId != id && CurrentUserType != "1")
+                        return Forbid();
+                }
+
                 var user = await _userManager.Get(id);
                 if(user == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" }, 
                         ErrorCode.UserNotFound, 
                         $"The user was not found"));
-
-                user.Image = GetUserImage(user.Id);
 
             return Ok(new Response<UserModel>(user, ErrorCode.NoError));
             }
@@ -90,14 +92,56 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize]
+        [HttpGet("GetImage/{id}")]
+        public async Task<IActionResult> GetImage(Guid id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+                else
+                {
+                    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                    if (currentUserId != id && CurrentUserType != "1")
+                        return Forbid();
+                }
+
+                var user = await _userManager.Get(id);
+                if (user == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.UserNotFound,
+                        $"No user was found"));
+
+                var targetPath = GetUserImage(user.Id);
+                var provider = new FileExtensionContentTypeProvider();
+                if (!provider.TryGetContentType(targetPath, out var contentType))
+                    contentType = "application/octet-stream";
+
+                var bytes = await System.IO.File.ReadAllBytesAsync(targetPath);
+                return File(bytes, contentType, Path.GetFileName(targetPath));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured In Controller.");
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
+            }
+        }
+
+
+
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")] //used by manager
         public async Task<IActionResult> UpdateUser(Guid id, [FromForm] UserUpdateDto dto)
         {
             try
             {
-                var user = await _userManager.Get(id);
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var user = await _userManager.GetByIdentity(new UserRequestModel { Id = id });
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request"}, 
                         ErrorCode.UserNotFound, 
@@ -204,13 +248,16 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-        //[Authorize(Policy = "ManagerPolicy")]
-        [HttpPut("SetUserStatus/{Id}")]
+        [Authorize(Policy = "ManagerPolicy")]
+        [HttpPut("SetUserStatus")]
         public async Task<IActionResult> SetUserStatus(Guid id, UserStatus status)
         {
             try
             {
-                var user = await _userManager.Get(id);
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var user = await _userManager.GetByIdentity(new UserRequestModel { Id = id });
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.UserNotFound,
@@ -230,12 +277,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
         
-        //[Authorize(Policy = "ManagerPolicy")]
+        [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 var user = await _userManager.Get(id);
                 if (user == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },

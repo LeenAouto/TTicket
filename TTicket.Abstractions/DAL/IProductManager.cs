@@ -1,5 +1,6 @@
 ﻿using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
+using TTicket.Models.ResponseModels;
 
 namespace TTicket.Abstractions.DAL
 {
@@ -7,7 +8,7 @@ namespace TTicket.Abstractions.DAL
     {
         Task<ProductModel> Get(Guid id);
         Task<ProductModel> GetByName(string name);
-        Task<IEnumerable<ProductModel>> GetList(ProductListRequestModel model);
+        Task<PagedResponse<ProductModel>> GetList(ProductListRequestModel model);
         Task<ProductModel> Add(ProductModel product);
         Task<ProductModel> Update(ProductModel product);
         Task<ProductModel> Delete(ProductModel product);

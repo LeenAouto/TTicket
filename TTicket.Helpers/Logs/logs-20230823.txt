@@ -1,0 +1,45 @@
+{"Timestamp":"2023-08-23T09:55:26.5736056+03:00","Level":"Error","MessageTemplate":"Test","Properties":{"SourceContext":"TTicket.WebApi.Controllers.TicketsController","ActionId":"f583e74e-11b8-4a30-80e6-fffb87d9e04c","ActionName":"TTicket.WebApi.Controllers.TicketsController.GetAll (TTicket.WebApi)","RequestId":"0HMT3KN99R2GS:00000001","RequestPath":"/api/Tickets","ConnectionId":"0HMT3KN99R2GS","MachineName":"LAPTOP-ENEVP1E3","ProcessId":16404,"ThreadId":7,"ApplicationName":"TTicket"}}
+2023-08-23T10:04:49.8171400+03:00 [ERR] (/LAPTOP-ENEVP1E3/12/) Test
+2023-08-23T10:07:57.3678127+03:00 [ERR] (TTicket/LAPTOP-ENEVP1E3/16/) Test
+2023-08-23T10:08:21.1945847+03:00 [ERR] (TTicket/LAPTOP-ENEVP1E3/15/) Test
+2023-08-23T10:09:32.2308418+03:00 [ERR] (ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/15/) Test
+2023-08-23T10:15:26.7642381+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.TicketsController/ActionId:2aaefb52-ef17-4946-a225-de0be2f8e2b6/ActionName:TTicket.WebApi.Controllers.TicketsController.GetAll (TTicket.WebApi)/RequestId:0HMT3L2OQPIKB:00000009/RequestPath:/api/Tickets/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:9/ThreadName) Message:Test
+2023-08-23T12:12:36.4667045+03:00 [ERR] (SourceContext:Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware/ActionId:/ActionName:/RequestId:0HMT3N49IOTFT:00000002/[RequestPath]:/api/users/GetUsers/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:3) Message:An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: No authentication handler is registered for the scheme 'Only manager account can query other users info.'. The registered schemes are: Bearer. Did you forget to call AddAuthentication().Add[SomeAuthHandler]("Only manager account can query other users info.",...)?
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.ForbidAsync(HttpContext context, String scheme, AuthenticationProperties properties)
+   at Microsoft.AspNetCore.Mvc.ForbidResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationMiddlewareResultHandler.HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware.Invoke(HttpContext context)
+2023-08-23T13:15:47.5229056+03:00 [ERR] (SourceContext:TTicket.DAL.Managers.UserManager/ActionId:ea456fc9-6c61-48ab-a105-a7988fb79bb8/ActionName:TTicket.WebApi.Controllers.AuthController.Login (TTicket.WebApi)/RequestId:0HMT3O3SDG6SO:00000004/[RequestPath]:/api/Auth/login/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:43) Message:An Error Occured.
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at TTicket.Security.PasswordHasher.Verify(String hashedPassword, String inputPassword) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\PasswordHasher.cs:line 28
+   at TTicket.Security.AuthManager.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\AuthManager.cs:line 155
+2023-08-23T13:15:48.0814909+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.AuthController/ActionId:ea456fc9-6c61-48ab-a105-a7988fb79bb8/ActionName:TTicket.WebApi.Controllers.AuthController.Login (TTicket.WebApi)/RequestId:0HMT3O3SDG6SO:00000004/[RequestPath]:/api/Auth/login/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:43) Message:An Error Occured In Controller.
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at TTicket.Security.PasswordHasher.Verify(String hashedPassword, String inputPassword) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\PasswordHasher.cs:line 28
+   at TTicket.Security.AuthManager.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\AuthManager.cs:line 155
+   at TTicket.WebApi.Controllers.AuthController.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\AuthController.cs:line 179
+2023-08-23T13:16:05.0656548+03:00 [ERR] (SourceContext:TTicket.DAL.Managers.UserManager/ActionId:ea456fc9-6c61-48ab-a105-a7988fb79bb8/ActionName:TTicket.WebApi.Controllers.AuthController.Login (TTicket.WebApi)/RequestId:0HMT3O3SDG6SO:00000005/[RequestPath]:/api/Auth/login/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:52) Message:An Error Occured.
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at TTicket.Security.PasswordHasher.Verify(String hashedPassword, String inputPassword) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\PasswordHasher.cs:line 28
+   at TTicket.Security.AuthManager.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\AuthManager.cs:line 155
+2023-08-23T13:16:05.1625726+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.AuthController/ActionId:ea456fc9-6c61-48ab-a105-a7988fb79bb8/ActionName:TTicket.WebApi.Controllers.AuthController.Login (TTicket.WebApi)/RequestId:0HMT3O3SDG6SO:00000005/[RequestPath]:/api/Auth/login/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:52) Message:An Error Occured In Controller.
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at TTicket.Security.PasswordHasher.Verify(String hashedPassword, String inputPassword) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\PasswordHasher.cs:line 28
+   at TTicket.Security.AuthManager.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.Security\Managers\AuthManager.cs:line 155
+   at TTicket.WebApi.Controllers.AuthController.Login(LoginViewModel model) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\AuthController.cs:line 179
