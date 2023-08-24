@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
+using TTicket.Models.PresentationModels.DashboardModels;
 using TTicket.Models.ResponseModels;
 
 namespace TTicket.WebApi.Controllers
@@ -21,16 +22,37 @@ namespace TTicket.WebApi.Controllers
 
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("TicketsStatus")]
-        public IActionResult TicketsStatus()
+        public async Task<IActionResult> TicketsStatus()
         {
             try
             {
                 if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
                     return Forbid();
 
-                var ticketsStatus = _ticketManager.TicketsStatus();
+                var ticketsStatus = await _ticketManager.TicketsStatus();
 
-                return Ok(new Response<IQueryable>(ticketsStatus, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<CountersModel>>(ticketsStatus, ErrorCode.NoError));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured In Controller.");
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
+            }
+        }
+
+        [Authorize(Policy = "ManagerPolicy")]
+        [HttpGet("ProductsTicketsCounter")]
+        public async Task<IActionResult> ProductsTicketsCounter()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
+                var counters = await _ticketManager.ProductsTicketsCounter();
+
+                return Ok(new Response<IEnumerable<ProductsTicketsModel>>(counters, ErrorCode.NoError));
             }
             catch (Exception e)
             {
@@ -42,16 +64,16 @@ namespace TTicket.WebApi.Controllers
 
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("ProductiveEmp")]
-        public IActionResult ProductiveEmp()
+        public async Task<IActionResult> ProductiveEmp()
         {
             try
             {
                 if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
                     return Forbid();
 
-                var productiveEmp = _ticketManager.ProductiveEmp();
+                var productiveEmp = await _ticketManager.ProductiveEmp();
 
-                return Ok(new Response<IQueryable>(productiveEmp, ErrorCode.NoError));
+                return Ok(new Response<IEnumerable<ProductiveEmpModel>>(productiveEmp, ErrorCode.NoError));
             }
             catch (Exception e)
             {

@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TTicket.Abstractions.DAL;
 using TTicket.Models.DTOs;
-using TTicket.Models;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
 using TTicket.Models.PresentationModels;
 using Microsoft.AspNetCore.Authorization;
 using TTicket.Security.Policies;
 using System.Security.Claims;
-using System.Net.Sockets;
 
 namespace TTicket.WebApi.Controllers
 {
@@ -17,16 +15,14 @@ namespace TTicket.WebApi.Controllers
     public class CommentsController : ControllerBase
     {
         private readonly ICommentManager _commentManager;
-        private readonly IUserManager _userManager;
         private readonly ITicketManager _ticketManager;
 
         private readonly ILogger<CommentsController> _logger;
 
-        public CommentsController(ICommentManager commentManager, ITicketManager ticketManager, IUserManager userManager, ILogger<CommentsController> logger)
+        public CommentsController(ICommentManager commentManager, ITicketManager ticketManager, ILogger<CommentsController> logger)
         {
             _commentManager = commentManager;
             _ticketManager = ticketManager;
-            _userManager = userManager;
             _logger = logger;
         }
 

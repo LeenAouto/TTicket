@@ -102,6 +102,7 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
+
         public async Task<ProductModel> Update(ProductModel product)
         {
             try

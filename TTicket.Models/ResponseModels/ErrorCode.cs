@@ -13,6 +13,7 @@
         //User errors
         UserNotFound = 1000,
         UsersNotFound = 1001,
+        UserImageNotFound = 1002,
 
         UsernameAlreadyUsed = 1101,
         UserEmailAlreadyUsed = 1102,
@@ -68,12 +69,5 @@
         TicketAlreadyClosed = 5102,
 
         InvalidTicketContent = 5201,
-
-
-
-
-
-
-
     }
 }

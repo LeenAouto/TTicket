@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
+using TTicket.Models.PresentationModels.DashboardModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
 
@@ -46,21 +47,6 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
-
-        //public async Task<TicketModel> GetByName(string name)
-        //{
-        //    try
-        //    {
-        //        var ticket = await _context.Ticket.Where(t => t.Name == name).FirstOrDefaultAsync();
-
-        //        return ticket != null ? new TicketModel(ticket) : null;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "An Error Occured.");
-        //        throw;
-        //    }
-        //}
 
         public async Task<PagedResponse<TicketModel>> GetList(TicketListRequestModel model)
         {
@@ -169,20 +155,19 @@ namespace TTicket.DAL.Managers
             }
         }
 
-
-        public IQueryable TicketsStatus()
+        public async Task<IEnumerable<CountersModel>> TicketsStatus()
         {
             try
             {
-                var x = _context.Ticket
+                var result = await _context.Ticket
                    .GroupBy(t => t.Status)
-                   .Select(g => new
+                   .Select(g => new CountersModel
                    {
-                       Status = g.Key.ToString(),
+                       Status = g.Key,
                        Count = g.Count()
-                   });
+                   }).ToListAsync();
 
-                return x;
+                return result;
             }
             catch (Exception e)
             {
@@ -191,20 +176,46 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public IQueryable ProductiveEmp()
+        public async Task<IEnumerable<ProductiveEmpModel>> ProductiveEmp()
         {
             try
             {
-                var x = _context.Ticket
+                var result = await _context.Ticket
                    .GroupBy(t => t.SupportId)
-                   .Select(g => new
+                   .Select(g => new ProductiveEmpModel
                    {
-                       Employee = g.Key.ToString(),
+                       SupportId = g.Key,
                        ClosedTickets = g.Count(t => t.Status == TicketStatus.Closed)
                    })
-                   .OrderByDescending(g => g.ClosedTickets);
+                   .OrderByDescending(g => g.ClosedTickets). ToListAsync();
 
-                return x;
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<ProductsTicketsModel>> ProductsTicketsCounter()
+        {
+            try
+            {
+                var result = await _context.Ticket
+                   .GroupBy(t => t.Product.Name)
+                   .Select(g => new ProductsTicketsModel
+                   {
+                       ProductName = g.Key.ToString(),
+                       Counters = new List<CountersModel>()
+                       {
+                           new CountersModel(){ Status = TicketStatus.New , Count = g.Count(t => t.Status == TicketStatus.New) },
+                           new CountersModel(){ Status = TicketStatus.Assigned , Count = g.Count(t => t.Status == TicketStatus.Assigned) },
+                           new CountersModel(){ Status = TicketStatus.Closed , Count = g.Count(t => t.Status == TicketStatus.Closed) }
+                       }
+                   }).ToListAsync();
+
+                return result;
             }
             catch (Exception e)
             {

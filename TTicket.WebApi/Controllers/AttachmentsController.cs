@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.DTOs;

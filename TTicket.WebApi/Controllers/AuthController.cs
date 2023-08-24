@@ -23,7 +23,6 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
-
         [AllowAnonymous]
         [HttpPost("RegisterClient")]
         public async Task<IActionResult> RegisterClient([FromForm] RegisterViewModel model)
@@ -56,7 +55,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
-                if(model.Image !=  null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
+                if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.InvalidImageFormat,
                         $"Only .png images are allowed"));
@@ -94,13 +93,15 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-
         [Authorize(Policy = "ManagerPolicy")]
         [HttpPost("RegisterSupport")]
         public async Task<IActionResult> RegisterSupport([FromForm] RegisterViewModel model)
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                    return Forbid();
+
                 if (!ModelState.IsValid)
                     return BadRequest(new Response<ModelStateDictionary>(ModelState,
                         ErrorCode.InvalidModelState,
@@ -134,7 +135,7 @@ namespace TTicket.WebApi.Controllers
 
                 var result = await _authManager.RegisterSupport(model);
 
-                if(!result.IsRegistered)
+                if (!result.IsRegistered)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.RegisterFailed,
                         result.Message));
@@ -178,12 +179,12 @@ namespace TTicket.WebApi.Controllers
 
                 var result = await _authManager.Login(model);
 
-                if(!result.IsAuthenticated)
+                if (!result.IsAuthenticated)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AuthenticationFailed,
                         result.Message));
-                
-                if(result.StatusUser != UserStatus.Active)
+
+                if (result.StatusUser != UserStatus.Active)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.AuthenticationFailed,
                         $"User Account is deactivated"));
@@ -195,13 +196,12 @@ namespace TTicket.WebApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "An Error Occured In Controller.");
-                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" }, 
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
                     ErrorCode.LoggedError, e.Message));
             }
         }
 
-
-        //Logout
+        [NonAction]
         [Authorize]
         [HttpPost("logout")]
         public IActionResult Logout()

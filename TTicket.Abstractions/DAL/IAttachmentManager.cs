@@ -7,7 +7,6 @@ namespace TTicket.Abstractions.DAL
     public interface IAttachmentManager
     {
         Task<AttachmentModel> Get(Guid id);
-        Task<AttachmentModel> GetByName(string fileName);
         Task<PagedResponse<AttachmentModel>> GetList(AttachmentListRequestModel model);
         Task<AttachmentModel> Add(AttachmentModel attachment);
         Task<AttachmentModel> Update(AttachmentModel attachment);

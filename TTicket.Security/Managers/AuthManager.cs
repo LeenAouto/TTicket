@@ -36,7 +36,7 @@ namespace TTicket.Security
             {
                 var request = new UserRequestModel
                 {
-                    Identity = model.Username
+                    Identity = model.Username.ToLower()
                 };
 
                 if (await _userManager.GetByIdentity(request) != null)
@@ -52,9 +52,9 @@ namespace TTicket.Security
 
                 var user = new SecureUserModel
                 {
-                    Username = model.Username,
+                    Username = model.Username.ToLower(),
                     Password = _hasher.Hash(model.Password),
-                    Email = model.Email,
+                    Email = model.Email.ToLower(),
                     MobilePhone = model.MobilePhone,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -69,8 +69,8 @@ namespace TTicket.Security
                 return new RegisterResponse
                 {
                     Id = resultUser.Id,
-                    Username = resultUser.Username.ToLower(),
-                    Email = resultUser.Email.ToLower(),
+                    Username = resultUser.Username,
+                    Email = resultUser.Email,
                     MobilePhone = resultUser.MobilePhone,
                     TypeUser = resultUser.TypeUser,
                     StatusUser = resultUser.StatusUser,
@@ -92,7 +92,7 @@ namespace TTicket.Security
             {
                 var request = new UserRequestModel
                 {
-                    Identity = model.Username
+                    Identity = model.Username.ToLower()
                 };
 
                 if (await _userManager.GetByIdentity(request) != null)
@@ -108,9 +108,9 @@ namespace TTicket.Security
 
                 var user = new SecureUserModel
                 {
-                    Username = model.Username,
+                    Username = model.Username.ToLower(),
                     Password = _hasher.Hash(model.Password),
-                    Email = model.Email,
+                    Email = model.Email.ToLower(),
                     MobilePhone = model.MobilePhone,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -125,8 +125,8 @@ namespace TTicket.Security
                 return new RegisterResponse
                 {
                     Id = resultUser.Id,
-                    Username = resultUser.Username.ToLower(),
-                    Email = resultUser.Email.ToLower(),
+                    Username = resultUser.Username,
+                    Email = resultUser.Email,
                     MobilePhone = resultUser.MobilePhone,
                     TypeUser = resultUser.TypeUser,
                     StatusUser = resultUser.StatusUser,
@@ -148,7 +148,7 @@ namespace TTicket.Security
             {
                 var authModel = new LoginResponse();
 
-                var request = new UserRequestModel { Identity = model.Identity };
+                var request = new UserRequestModel { Identity = model.Identity.ToLower() };
 
                 var user = await _userManager.GetByIdentity(request);
 

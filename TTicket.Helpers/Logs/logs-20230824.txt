@@ -1,0 +1,109 @@
+2023-08-24T12:14:59.4780207+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.UsersController/ActionId:9c045665-7b92-491d-b097-de8c18aa988f/ActionName:TTicket.WebApi.Controllers.UsersController.GetImage (TTicket.WebApi)/RequestId:0HMT4G30SD1HR:00000019/[RequestPath]:/api/users/GetImage/aec6546c-8bf2-46b0-90bb-c3b1c01ab066/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:49) Message:An Error Occured In Controller.
+System.ArgumentException: Empty path name is not legal. (Parameter 'path')
+   at System.IO.Strategies.FileStreamHelpers.ValidateArguments(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.ReadAllBytesAsync(String path, CancellationToken cancellationToken)
+   at TTicket.WebApi.Controllers.UsersController.GetImage(Guid id) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\UsersController.cs:line 120
+2023-08-24T12:16:22.0443898+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.UsersController/ActionId:9c045665-7b92-491d-b097-de8c18aa988f/ActionName:TTicket.WebApi.Controllers.UsersController.GetImage (TTicket.WebApi)/RequestId:0HMT4G30SD1HR:0000001A/[RequestPath]:/api/users/GetImage/aec6546c-8bf2-46b0-90bb-c3b1c01ab066/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:52) Message:An Error Occured In Controller.
+System.ArgumentException: Empty path name is not legal. (Parameter 'path')
+   at System.IO.Strategies.FileStreamHelpers.ValidateArguments(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.ReadAllBytesAsync(String path, CancellationToken cancellationToken)
+   at TTicket.WebApi.Controllers.UsersController.GetImage(Guid id) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\UsersController.cs:line 120
+2023-08-24T12:22:41.2151489+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.UsersController/ActionId:40c0ac5e-3722-4175-b8bd-964a197a75c1/ActionName:TTicket.WebApi.Controllers.UsersController.GetImage (TTicket.WebApi)/RequestId:0HMT4GD9A6AGO:00000004/[RequestPath]:/api/users/GetImage/aec6546c-8bf2-46b0-90bb-c3b1c01ab066/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:17) Message:An Error Occured In Controller.
+System.ArgumentException: Empty path name is not legal. (Parameter 'path')
+   at System.IO.Strategies.FileStreamHelpers.ValidateArguments(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.ReadAllBytesAsync(String path, CancellationToken cancellationToken)
+   at TTicket.WebApi.Controllers.UsersController.GetImage(Guid id) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\UsersController.cs:line 120
+2023-08-24T12:47:56.8833146+03:00 [ERR] (SourceContext:Microsoft.EntityFrameworkCore.Update/ActionId:fad6675c-ae8e-4a49-8240-289d3184a682/ActionName:TTicket.WebApi.Controllers.UsersController.Delete (TTicket.WebApi)/RequestId:0HMT4GLH49CQ2:00000010/[RequestPath]:/api/Users/f080a2e6-bc0f-4e1e-8614-60e2b1f6896f/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:54) Message:An exception occurred in the database while saving changes for context type '"TTicket.DAL.ApplicationDbContext"'."
+""Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The DELETE statement conflicted with the REFERENCE constraint \"FK_Ticket_User_UserId\". The conflict occurred in database \"TTicketDB\", table \"dbo.Ticket\", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.Read()
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnly(Int32 commandIndex, RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+ClientConnectionId:c7e73e75-10e5-4fd5-96ba-ef059e5875fa
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The DELETE statement conflicted with the REFERENCE constraint "FK_Ticket_User_UserId". The conflict occurred in database "TTicketDB", table "dbo.Ticket", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.Read()
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnly(Int32 commandIndex, RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+ClientConnectionId:c7e73e75-10e5-4fd5-96ba-ef059e5875fa
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+2023-08-24T12:47:57.7411754+03:00 [ERR] (SourceContext:TTicket.DAL.Managers.UserManager/ActionId:fad6675c-ae8e-4a49-8240-289d3184a682/ActionName:TTicket.WebApi.Controllers.UsersController.Delete (TTicket.WebApi)/RequestId:0HMT4GLH49CQ2:00000010/[RequestPath]:/api/Users/f080a2e6-bc0f-4e1e-8614-60e2b1f6896f/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:54) Message:An Error Occured.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The DELETE statement conflicted with the REFERENCE constraint "FK_Ticket_User_UserId". The conflict occurred in database "TTicketDB", table "dbo.Ticket", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.Read()
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnly(Int32 commandIndex, RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+ClientConnectionId:c7e73e75-10e5-4fd5-96ba-ef059e5875fa
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at TTicket.DAL.Managers.UserManager.Delete(UserModel user) in D:\Program Files\source\repos\TTicket\TTicket.DAL\Managers\UserManager.cs:line 159
+2023-08-24T12:47:57.9562286+03:00 [ERR] (SourceContext:TTicket.WebApi.Controllers.UsersController/ActionId:fad6675c-ae8e-4a49-8240-289d3184a682/ActionName:TTicket.WebApi.Controllers.UsersController.Delete (TTicket.WebApi)/RequestId:0HMT4GLH49CQ2:00000010/[RequestPath]:/api/Users/f080a2e6-bc0f-4e1e-8614-60e2b1f6896f/ApplicationName:TTicket/MachineName:LAPTOP-ENEVP1E3/TreadId:54) Message:An Error Occured In Controller.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The DELETE statement conflicted with the REFERENCE constraint "FK_Ticket_User_UserId". The conflict occurred in database "TTicketDB", table "dbo.Ticket", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.Read()
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnly(Int32 commandIndex, RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+ClientConnectionId:c7e73e75-10e5-4fd5-96ba-ef059e5875fa
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.Consume(RelationalDataReader reader)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at TTicket.DAL.Managers.UserManager.Delete(UserModel user) in D:\Program Files\source\repos\TTicket\TTicket.DAL\Managers\UserManager.cs:line 159
+   at TTicket.WebApi.Controllers.UsersController.Delete(Guid id) in D:\Program Files\source\repos\TTicket\TTicket.WebApi\Controllers\UsersController.cs:line 313

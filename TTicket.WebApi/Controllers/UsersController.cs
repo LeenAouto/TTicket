@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
-using TTicket.DAL.Managers;
 using TTicket.Models;
 using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
@@ -58,7 +57,6 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
-
 
         [Authorize]
         [HttpGet("{id}")]
@@ -115,6 +113,12 @@ namespace TTicket.WebApi.Controllers
                         $"No user was found"));
 
                 var targetPath = GetUserImage(user.Id);
+
+                if(string.IsNullOrEmpty(targetPath))
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.UserImageNotFound,
+                        $"No image of this user was found"));
+
                 var provider = new FileExtensionContentTypeProvider();
                 if (!provider.TryGetContentType(targetPath, out var contentType))
                     contentType = "application/octet-stream";
@@ -230,7 +234,7 @@ namespace TTicket.WebApi.Controllers
 
                 user.FirstName = string.IsNullOrEmpty(dto.FirstName)? user.FirstName : dto.FirstName;
 
-                user.LastName = string.IsNullOrEmpty(dto.LastName)? user.FirstName : dto.LastName;
+                user.LastName = string.IsNullOrEmpty(dto.LastName)? user.LastName : dto.LastName;
 
                 user.DateOfBirth = dto.DateOfBirth?? user.DateOfBirth;
 
@@ -317,6 +321,7 @@ namespace TTicket.WebApi.Controllers
             }
         }
         
+
         [NonAction]
         private string GetFilesPath()
         {

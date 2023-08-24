@@ -1,5 +1,4 @@
-﻿using Azure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
@@ -38,24 +37,6 @@ namespace TTicket.DAL.Managers
             }
         }
 
-        public async Task<AttachmentModel> GetByName(string fileName)
-        {
-            try
-            {
-                var attachment = await _context.Attachment.
-                    Where(a => a.FileName == fileName).
-                    Select(a => new AttachmentModel(a)).
-                    FirstOrDefaultAsync();
-
-                return attachment;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "An Error Occured.");
-                throw;
-            }
-        }
-
         public async Task<PagedResponse<AttachmentModel>> GetList(AttachmentListRequestModel model)
         {
             try
@@ -63,7 +44,7 @@ namespace TTicket.DAL.Managers
                 var skip = (model.PageNumber - 1) * model.PageSize;
 
                 var query = _context.Attachment.
-                    Where(a => a.AttachedToId == model.AttachedToId || model.AttachedToId == null);
+                    Where(a => a.AttachedToId == model.AttachedToId);
 
                 var totalCount = await query.CountAsync();
 

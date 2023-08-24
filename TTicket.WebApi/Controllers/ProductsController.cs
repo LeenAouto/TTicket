@@ -5,7 +5,6 @@ using TTicket.Models.DTOs;
 using TTicket.Models.PresentationModels;
 using TTicket.Models.RequestModels;
 using TTicket.Models.ResponseModels;
-using TTicket.Security.Policies;
 
 namespace TTicket.WebApi.Controllers
 {

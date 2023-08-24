@@ -86,7 +86,8 @@ builder.Services.AddScoped<IAttachmentManager, AttachmentManager>();
 builder.Services.AddScoped<IProductManager, ProductManager>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Configuring Swagger/OpenAPI 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

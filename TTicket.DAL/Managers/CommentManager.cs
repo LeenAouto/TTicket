@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Net.Sockets;
 using TTicket.Abstractions.DAL;
 using TTicket.Models;
 using TTicket.Models.PresentationModels;
@@ -55,10 +54,7 @@ namespace TTicket.DAL.Managers
                 var skip = (model.PageNumber - 1) * model.PageSize;
 
                 var query = _context.Comment.
-                    Where(c => (c.TicketId == model.TicketId || model.TicketId == null)
-                            //&& (c.UserId == model.UserId || model.UserId == null)
-                            //&& (c.CreatedDate == model.CreatedDate || model.CreatedDate == null)
-                            );
+                    Where(c => c.TicketId == model.TicketId);
 
                 var totalCount = await query.CountAsync();
 
@@ -89,7 +85,6 @@ namespace TTicket.DAL.Managers
                     Content = comment.Content,
                     CreatedDate = comment.CreatedDate
                 };
-
 
                 await _context.Comment.AddAsync(c);
                 _context.SaveChanges();

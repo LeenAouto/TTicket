@@ -36,6 +36,7 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
+
         public async Task<SecureUserModel> GetByIdentity(UserRequestModel model)
         {
             try
@@ -54,6 +55,7 @@ namespace TTicket.DAL.Managers
                 throw;
             }
         }
+
         public async Task<PagedResponse<UserModel>> GetList(UserListRequestModel model)
         {
             try

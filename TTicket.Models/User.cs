@@ -13,8 +13,6 @@
         public string? Address { get; set; }
         public UserType TypeUser { get; set; }
         public UserStatus StatusUser { get; set; }
-
-        //public string? Image { get; set; }
     }
 
     public enum UserType : byte
