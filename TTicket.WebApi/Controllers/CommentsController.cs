@@ -26,14 +26,25 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get the list of comments that are added to a specific ticket
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("GetComments")]
         public async Task<IActionResult> GetAll([FromQuery] CommentListRequestModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+
+                if(model.TicketId == Guid.Empty)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request"},
+                        ErrorCode.RequiredFilter,
+                        "TicketId is Required"));
+
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
                 var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
@@ -65,14 +76,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the details of a specific comment
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var comment = await _commentManager.Get(id);
                 if (comment == null)
@@ -104,14 +120,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Add a comment to a ticket 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CommentAddDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
 
@@ -125,7 +147,7 @@ namespace TTicket.WebApi.Controllers
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.TicketNotFound, $"No ticket was not found"));
 
-                if (ticket.UserId != currentUserId || ticket.SupportId != currentUserId)
+                if (ticket.UserId != currentUserId && ticket.SupportId != currentUserId)
                     return Forbid();
                     //return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                     //    ErrorCode.ForbidAccess, $"Only the client that created the ticket and the support employee can comment"));
@@ -154,14 +176,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Update a comment
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CommentUpdateDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
 
@@ -190,14 +218,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a comment (Only the manager is allowed to delete a comment)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var comment = await _commentManager.Get(id);
                 if (comment == null)

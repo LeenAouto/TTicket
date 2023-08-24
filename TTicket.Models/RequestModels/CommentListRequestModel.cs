@@ -1,7 +1,10 @@
-﻿namespace TTicket.Models.RequestModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TTicket.Models.RequestModels
 {
     public class CommentListRequestModel : BaseListRequestModel
     {
-        public Guid TicketId { get; set; }
+        [Required]
+        public Guid TicketId { get; set; } = default(Guid);
     }
 }

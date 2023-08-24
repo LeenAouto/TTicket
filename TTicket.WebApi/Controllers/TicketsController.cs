@@ -29,23 +29,35 @@ namespace TTicket.WebApi.Controllers
             _productManager = productManager;
         }
 
+        /// <summary>
+        /// Get all tickets according to the filter (Only manager can see all tickets, clients and support users see their tickets only)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] TicketListRequestModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
-                else
-                {
-                    var currentUserId = HttpContext.User.FindFirstValue("uid");
-                    var currentUserType = HttpContext.User.FindFirstValue("TypeUser");
-                    if (currentUserType == "2")
-                        model.SupportId = Guid.Parse(currentUserId);
-                    else if (currentUserType == "3")
-                        model.UserId = Guid.Parse(currentUserId);
-                }
+                var currentUserId = HttpContext.User.FindFirstValue("uid");
+                var currentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                if (currentUserType == "2")
+                    model.SupportId = Guid.Parse(currentUserId);
+                else if (currentUserType == "3")
+                    model.UserId = Guid.Parse(currentUserId);
+
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+                //else
+                //{
+                //    var currentUserId = HttpContext.User.FindFirstValue("uid");
+                //    var currentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                //    if (currentUserType == "2")
+                //        model.SupportId = Guid.Parse(currentUserId);
+                //    else if (currentUserType == "3")
+                //        model.UserId = Guid.Parse(currentUserId);
+                //}
 
                 var tickets = await _ticketManager.GetList(model);
                 if (!tickets.Items.Any())
@@ -63,14 +75,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the details of a ticket using a specific id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var ticket = await _ticketManager.Get(id);
                 if (ticket == null)
@@ -95,22 +112,21 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Submit a ticket to the system (Used by client users)
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ClientPolicy")]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] TicketAddDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
-
-                //var request = new UserRequestModel { Id = dto.UserId, TypeUser = UserType.Client };
-                //if (await _userManager.GetByIdentity(request) == null)
-                //    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
-                //        ErrorCode.UserNotFound,
-                //        $"No user was found"));
 
                 if (await _productManager.Get(dto.ProductId) == null)
                     return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
@@ -124,7 +140,6 @@ namespace TTicket.WebApi.Controllers
 
                 var ticket = new TicketModel
                 {
-                    //UserId = dto.UserId,
                     UserId = currentUserId,
                     SupportId = null,
                     ProductId = dto.ProductId,
@@ -146,14 +161,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an existing ticket (Used by client users)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ClientPolicy")]
         [HttpPut("{id}")] 
         public async Task<IActionResult> Update(Guid id, [FromBody] TicketUpdateDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
 
@@ -196,14 +217,21 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Set the status of the ticket 
+        /// (if the user was a manager, he can assign and re-assign the ticket to a support member, if the user is a support member, he can only close that ticket if it was assigned to him)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [MultiplePoliciesAuthorize("ManagerPolicy;SupportPolicy")]
         [HttpPut("SetTicketStatus/{id}")]
         public async Task<IActionResult> SetTicketStatus(Guid id, [FromBody] TicketSetStatusDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var ticket = await _ticketManager.Get(id);
                 if (ticket == null)
@@ -241,14 +269,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a specific ticket (Only manager can delete tickets)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var ticket = await _ticketManager.Get(id);
                 if (ticket == null)

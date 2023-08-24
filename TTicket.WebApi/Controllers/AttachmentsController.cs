@@ -29,14 +29,24 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get all the attachments detalis of a specific ticket or a comment
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("GetAttachments")]
         public async Task<IActionResult> GetAll([FromQuery] AttachmentListRequestModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+
+                if (model.AttachedToId == Guid.Empty)
+                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                        ErrorCode.RequiredFilter,
+                        "AttachedTo is Required"));
 
                 var attachments = await _attachmentManager.GetList(model);
                 if (!attachments.Items.Any())
@@ -54,14 +64,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the details about a single attachment using the attachment id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("GetInfo/{id}")]
         public async Task<IActionResult> GetInfo(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
@@ -79,14 +94,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Download the attachment
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
-        [HttpGet("DownloadAttachment")]
-        public async Task<IActionResult> DownloadAttachment(Guid id)//[FromQuery] AttachmentDownloadDto dto)
+        [HttpGet("DownloadAttachment/{id}")]
+        public async Task<IActionResult> DownloadAttachment(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
@@ -110,15 +130,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Upload (add) attachment to a ticket of a comment
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [Authorize] 
         [HttpPost("UploadAttachment")]
         public async Task<IActionResult> UploadAttachment([FromForm] AttachmentAddDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 AttacherType attacher;
                 if (await _ticketManager.Get(dto.AttachedToId) != null)
@@ -166,14 +190,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an attachment (The old one gets deleted from the server)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] AttachmentUpdateDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)
@@ -212,14 +242,19 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete an attachment from the server
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var attachment = await _attachmentManager.Get(id);
                 if (attachment == null)

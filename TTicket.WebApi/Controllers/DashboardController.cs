@@ -20,14 +20,18 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Compute statistics about all tickets statuses of the system
+        /// </summary>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("TicketsStatus")]
         public async Task<IActionResult> TicketsStatus()
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var ticketsStatus = await _ticketManager.TicketsStatus();
 
@@ -41,14 +45,18 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Calculate counters of all products tickets statuses of the system
+        /// </summary>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("ProductsTicketsCounter")]
         public async Task<IActionResult> ProductsTicketsCounter()
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var counters = await _ticketManager.ProductsTicketsCounter();
 
@@ -62,14 +70,18 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Compute statistics about the productivity of each support member .i.e employee
+        /// </summary>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("ProductiveEmp")]
         public async Task<IActionResult> ProductiveEmp()
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var productiveEmp = await _ticketManager.ProductiveEmp();
 

@@ -14,6 +14,10 @@ namespace TTicket.WebApi.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Database Health Check 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("DbHealthCheck")]
         public async Task<IActionResult> DbHealthCheck()
         {
@@ -25,6 +29,11 @@ namespace TTicket.WebApi.Controllers
             return NotFound();
         }
 
+
+        /// <summary>
+        /// Api Health Check 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("ApiHealthCheck")]
         public IActionResult ApiHealthCheck()
         {

@@ -23,6 +23,11 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Regiter to the system (Avaliable for anonymous users and will create a user of type "Client")
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("RegisterClient")]
         public async Task<IActionResult> RegisterClient([FromForm] RegisterViewModel model)
@@ -93,14 +98,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Regiter support members accounts to the system (Avaliable only for manager user and will create a user of type "Support")
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpPost("RegisterSupport")]
         public async Task<IActionResult> RegisterSupport([FromForm] RegisterViewModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 if (!ModelState.IsValid)
                     return BadRequest(new Response<ModelStateDictionary>(ModelState,
@@ -166,8 +177,13 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Login to the system (Avaliable for anonymous users)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             try
@@ -189,7 +205,7 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.AuthenticationFailed,
                         $"User Account is deactivated"));
 
-                HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
+                //HttpContext.Session.SetString("authModel", JsonConvert.SerializeObject(result));
 
                 return Ok(new Response<LoginResponse>(result, ErrorCode.NoError));
             }
@@ -208,7 +224,7 @@ namespace TTicket.WebApi.Controllers
         {
             try
             {
-                HttpContext.Session.Clear();
+                //HttpContext.Session.Clear();
                 
                 return Ok();
             }

@@ -10,6 +10,8 @@
 
         ForbidAccess = 3,
 
+        RequiredFilter = 4,
+
         //User errors
         UserNotFound = 1000,
         UsersNotFound = 1001,
@@ -49,7 +51,6 @@
         CommentsNotFound = 3001,
 
         InvalidCommentContent = 3201,
-
 
 
         //Products errors

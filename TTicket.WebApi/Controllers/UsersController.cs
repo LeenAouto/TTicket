@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Security.Claims;
 using TTicket.Abstractions.DAL;
 using TTicket.Abstractions.Security;
@@ -33,14 +32,19 @@ namespace TTicket.WebApi.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get all users information (Used by manager only)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAll([FromQuery] UserListRequestModel model)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var users = await _userManager.GetList(model);
                 if (!users.Items.Any())
@@ -58,21 +62,31 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the details about a specific user (a non-manager user can only retrive his own information)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                if (currentUserId != id && CurrentUserType != "1")
                     return Forbid();
-                else
-                {
-                    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
-                    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
-                    if (currentUserId != id && CurrentUserType != "1")
-                        return Forbid();
-                }
+
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+                //else
+                //{
+                //    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                //    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                //    if (currentUserId != id && CurrentUserType != "1")
+                //        return Forbid();
+                //}
 
                 var user = await _userManager.Get(id);
                 if(user == null)
@@ -90,21 +104,31 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the user image (a non-manager user can only retrive his own image)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("GetImage/{id}")]
         public async Task<IActionResult> GetImage(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                if (currentUserId != id && CurrentUserType != "1")
                     return Forbid();
-                else
-                {
-                    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
-                    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
-                    if (currentUserId != id && CurrentUserType != "1")
-                        return Forbid();
-                }
+
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+                //else
+                //{
+                //    var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
+                //    var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
+                //    if (currentUserId != id && CurrentUserType != "1")
+                //        return Forbid();
+                //}
 
                 var user = await _userManager.Get(id);
                 if (user == null)
@@ -134,16 +158,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
-
-
+        /// <summary>
+        /// Update user information (Only used by manager)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("{id}")] //used by manager
         public async Task<IActionResult> UpdateUser(Guid id, [FromForm] UserUpdateDto dto)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var user = await _userManager.GetByIdentity(new UserRequestModel { Id = id });
                 if (user == null)
@@ -252,14 +280,20 @@ namespace TTicket.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Activate and deactivate the user (Only used by manager)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpPut("SetUserStatus")]
         public async Task<IActionResult> SetUserStatus(Guid id, UserStatus status)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var user = await _userManager.GetByIdentity(new UserRequestModel { Id = id });
                 if (user == null)
@@ -280,15 +314,20 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
-        
+
+        /// <summary>
+        /// Delete a user account from the system (Only used by manager)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ManagerPolicy")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
-                    return Forbid();
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
 
                 var user = await _userManager.Get(id);
                 if (user == null)
