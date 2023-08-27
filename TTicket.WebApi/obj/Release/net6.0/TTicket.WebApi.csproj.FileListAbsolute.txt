@@ -294,3 +294,5 @@ D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsof
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore.dll
 D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\web.config
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\bin\Release\net6.0\TTicket.WebApi.xml
+D:\Program Files\source\repos\TTicket\TTicket.WebApi\obj\Release\net6.0\TTicket.WebApi.xml

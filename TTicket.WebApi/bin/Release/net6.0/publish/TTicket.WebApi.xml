@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TTicket.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.GetAll(TTicket.Models.RequestModels.AttachmentListRequestModel)">
+            <summary>
+            Get all the attachments detalis of a specific ticket or a comment
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.GetInfo(System.Guid)">
+            <summary>
+            Get the details about a single attachment using the attachment id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.DownloadAttachment(System.Guid)">
+            <summary>
+            Download the attachment
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.UploadAttachment(TTicket.Models.DTOs.AttachmentAddDto)">
+            <summary>
+            Upload (add) attachment to a ticket of a comment
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.Update(System.Guid,TTicket.Models.DTOs.AttachmentUpdateDto)">
+            <summary>
+            Update an attachment (The old one gets deleted from the server)
+            </summary>
+            <param name="id"></param>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.Delete(System.Guid)">
+            <summary>
+            Delete an attachment from the server
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AuthController.RegisterClient(TTicket.Models.UserManagementModels.RegisterViewModel)">
+            <summary>
+            Regiter to the system (Avaliable for anonymous users and will create a user of type "Client")
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AuthController.RegisterSupport(TTicket.Models.UserManagementModels.RegisterViewModel)">
+            <summary>
+            Regiter support members accounts to the system (Avaliable only for manager user and will create a user of type "Support")
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AuthController.Login(TTicket.Models.UserManagementModels.LoginViewModel)">
+            <summary>
+            Login to the system (Avaliable for anonymous users)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.CommentsController.GetAll(TTicket.Models.RequestModels.CommentListRequestModel)">
+            <summary>
+            Get the list of comments that are added to a specific ticket
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.CommentsController.Get(System.Guid)">
+            <summary>
+            Get the details of a specific comment
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.CommentsController.Add(TTicket.Models.DTOs.CommentAddDto)">
+            <summary>
+            Add a comment to a ticket 
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.CommentsController.Update(System.Guid,TTicket.Models.DTOs.CommentUpdateDto)">
+            <summary>
+            Update a comment
+            </summary>
+            <param name="id"></param>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.CommentsController.Delete(System.Guid)">
+            <summary>
+            Delete a comment (Only the manager is allowed to delete a comment)
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.DashboardController.TicketsStatus">
+            <summary>
+            Compute statistics about all tickets statuses of the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.DashboardController.ProductsTicketsCounter">
+            <summary>
+            Calculate counters of all products tickets statuses of the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.DashboardController.ProductiveEmp">
+            <summary>
+            Compute statistics about the productivity of each support member .i.e employee
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.PingController.DbHealthCheck">
+            <summary>
+            Database Health Check 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.PingController.ApiHealthCheck">
+            <summary>
+            Api Health Check 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.ProductsController.GetAll(TTicket.Models.RequestModels.ProductListRequestModel)">
+            <summary>
+            Get all products
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.ProductsController.Get(System.Guid)">
+            <summary>
+            Get a product by specific id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.GetAll(TTicket.Models.RequestModels.TicketListRequestModel)">
+            <summary>
+            Get all tickets according to the filter (Only manager can see all tickets, clients and support users see their tickets only)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.Get(System.Guid)">
+            <summary>
+            Get the details of a ticket using a specific id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.Add(TTicket.Models.DTOs.TicketAddDto)">
+            <summary>
+            Submit a ticket to the system (Used by client users)
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.Update(System.Guid,TTicket.Models.DTOs.TicketUpdateDto)">
+            <summary>
+            Update an existing ticket (Used by client users)
+            </summary>
+            <param name="id"></param>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.SetTicketStatus(System.Guid,TTicket.Models.DTOs.TicketSetStatusDto)">
+            <summary>
+            Set the status of the ticket 
+            (if the user was a manager, he can assign and re-assign the ticket to a support member, if the user is a support member, he can only close that ticket if it was assigned to him)
+            </summary>
+            <param name="id"></param>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.TicketsController.Delete(System.Guid)">
+            <summary>
+            Delete a specific ticket (Only manager can delete tickets)
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.GetAll(TTicket.Models.RequestModels.UserListRequestModel)">
+            <summary>
+            Get all users information (Used by manager only)
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.Get(System.Guid)">
+            <summary>
+            Get the details about a specific user (a non-manager user can only retrive his own information)
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.GetImage(System.Guid)">
+            <summary>
+            Get the user image (a non-manager user can only retrive his own image)
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.UpdateUser(System.Guid,TTicket.Models.DTOs.UserUpdateDto)">
+            <summary>
+            Update user information (Only used by manager)
+            </summary>
+            <param name="id"></param>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.SetUserStatus(System.Guid,TTicket.Models.UserStatus)">
+            <summary>
+            Activate and deactivate the user (Only used by manager)
+            </summary>
+            <param name="id"></param>
+            <param name="status"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.UsersController.Delete(System.Guid)">
+            <summary>
+            Delete a user account from the system (Only used by manager)
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
