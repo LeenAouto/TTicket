@@ -60,10 +60,10 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
-                if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidImageFormat,
-                        $"Only .png images are allowed"));
+                //if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
+                //    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                //        ErrorCode.InvalidImageFormat,
+                //        $"Only .png images are allowed"));
 
                 var result = await _authManager.RegisterClient(model);
 
@@ -79,7 +79,7 @@ namespace TTicket.WebApi.Controllers
                     if (!Directory.Exists(filesPath))
                         Directory.CreateDirectory(filesPath);
 
-                    var fileName = GenerateFileName(result.Id);
+                    var fileName = GenerateFileName(result.Id, model.Image);
 
                     var targetPath = Path.Combine(filesPath, fileName);
                     using (var stream = new FileStream(targetPath, FileMode.Create))
@@ -139,10 +139,10 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.InvalidEmailAddress,
                         $"Invalid email address"));
 
-                if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
-                    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                        ErrorCode.InvalidImageFormat,
-                        $"Only .png images are allowed"));
+                //if (model.Image != null && !".png".Contains(Path.GetExtension(model.Image.FileName).ToLower()))
+                //    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
+                //        ErrorCode.InvalidImageFormat,
+                //        $"Only .png images are allowed"));
 
                 var result = await _authManager.RegisterSupport(model);
 
@@ -158,7 +158,7 @@ namespace TTicket.WebApi.Controllers
                     if (!Directory.Exists(filesPath))
                         Directory.CreateDirectory(filesPath);
 
-                    var fileName = GenerateFileName(result.Id);
+                    var fileName = GenerateFileName(result.Id, model.Image);
 
                     var targetPath = Path.Combine(filesPath, fileName);
                     using (var stream = new FileStream(targetPath, FileMode.Create))
@@ -247,9 +247,12 @@ namespace TTicket.WebApi.Controllers
         }
 
         [NonAction]
-        private string GenerateFileName(Guid id)
+        private string GenerateFileName(Guid id, IFormFile file)
         {
-            var fileName = id.ToString() + ".png";
+            var extension = "." + file.FileName.Split('.').Last();
+
+            var fileName = id.ToString() + extension;
+
             return fileName;
         }
     }

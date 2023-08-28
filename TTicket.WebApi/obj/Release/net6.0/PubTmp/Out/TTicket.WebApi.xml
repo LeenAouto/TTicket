@@ -18,11 +18,18 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.DownloadAttachment(System.Guid)">
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.DownloadAttachmentById(System.Guid)">
             <summary>
-            Download the attachment
+            Download an attachment by its id
             </summary>
             <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TTicket.WebApi.Controllers.AttachmentsController.DownloadAttachmentByName(System.String)">
+            <summary>
+            Download an attachment by its file name
+            </summary>
+            <param name="fileName"></param>
             <returns></returns>
         </member>
         <member name="M:TTicket.WebApi.Controllers.AttachmentsController.UploadAttachment(TTicket.Models.DTOs.AttachmentAddDto)">

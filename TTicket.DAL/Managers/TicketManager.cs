@@ -58,7 +58,7 @@ namespace TTicket.DAL.Managers
                     Where(t => (t.UserId == model.UserId || model.UserId == null)
                             && (t.SupportId == model.SupportId || model.SupportId == null)
                             && (t.ProductId == model.SupportId || model.ProductId == null)
-                            && (t.Name == model.Name || model.Name == null)
+                            && (t.Name.Contains(model.Name) || model.Name == null)
                             && (t.CreatedDate == model.CreatedDate || model.CreatedDate == null)
                             && (t.UpdatedDate == model.UpdatedDate || model.UpdatedDate == null)
                             && (t.Status == model.Status || model.Status == null));
@@ -181,10 +181,13 @@ namespace TTicket.DAL.Managers
             try
             {
                 var result = await _context.Ticket
+                   //.Include(t => t.Support)
                    .GroupBy(t => t.SupportId)
                    .Select(g => new ProductiveEmpModel
                    {
                        SupportId = g.Key,
+                       //EmployeeName = _context.User.
+                       //Where(u => u.Id == g.Key).Select(u => u.FirstName + " " + u.LastName).Single(),
                        ClosedTickets = g.Count(t => t.Status == TicketStatus.Closed)
                    })
                    .OrderByDescending(g => g.ClosedTickets). ToListAsync();

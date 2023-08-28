@@ -37,6 +37,23 @@ namespace TTicket.DAL.Managers
             }
         }
 
+        public async Task<AttachmentModel> GetByFileName(string fileName)
+        {
+            try
+            {
+                var attachment = await _context.Attachment.
+                   Where(a => a.FileName == fileName).
+                   Select(a => new AttachmentModel(a)).
+                   FirstOrDefaultAsync();
+
+                return attachment;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured.");
+                throw;
+            }
+        }
         public async Task<PagedResponse<AttachmentModel>> GetList(AttachmentListRequestModel model)
         {
             try

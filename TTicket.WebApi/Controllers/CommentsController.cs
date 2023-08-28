@@ -104,7 +104,7 @@ namespace TTicket.WebApi.Controllers
                     if (ticket == null)
                         return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
                         ErrorCode.TicketNotFound,
-                        $"No ticket was found"));
+                        $"The ticket of this comment was not found"));
 
                     if (currentUserId != ticket.UserId && currentUserId != ticket.SupportId)
                         return Forbid();
@@ -126,7 +126,8 @@ namespace TTicket.WebApi.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
+        //[MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CommentAddDto dto)
         {
@@ -136,22 +137,18 @@ namespace TTicket.WebApi.Controllers
                 //    return Forbid();
 
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
-
-                //var user = await _userManager.Get(dto.UserId);
-                //if (user == null)
-                //    return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                //        ErrorCode.UserNotFound, $"The user was not found"));
+                var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
 
                 var ticket = await _ticketManager.Get(dto.TicketId);
                 if (ticket == null)
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
                         ErrorCode.TicketNotFound, $"No ticket was not found"));
 
-                if (ticket.UserId != currentUserId && ticket.SupportId != currentUserId)
-                    return Forbid();
-                    //return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                    //    ErrorCode.ForbidAccess, $"Only the client that created the ticket and the support employee can comment"));
-
+                if(CurrentUserType != "1")
+                {
+                    if (ticket.UserId != currentUserId && ticket.SupportId != currentUserId)
+                        return Forbid();
+                }
 
                 if (string.IsNullOrWhiteSpace(dto.Content))
                     return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
@@ -182,7 +179,8 @@ namespace TTicket.WebApi.Controllers
         /// <param name="id"></param>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
+        //[MultiplePoliciesAuthorize("SupportPolicy;ClientPolicy")]
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CommentUpdateDto dto)
         {

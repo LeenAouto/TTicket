@@ -117,8 +117,12 @@ namespace TTicket.WebApi.Controllers
             {
                 var currentUserId = Guid.Parse(HttpContext.User.FindFirstValue("uid"));
                 var CurrentUserType = HttpContext.User.FindFirstValue("TypeUser");
-                if (currentUserId != id && CurrentUserType != "1")
-                    return Forbid();
+                if (CurrentUserType != "1")
+                {
+                    if(currentUserId != id)
+                        return Forbid();
+                }
+                    
 
                 //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
                 //    return Forbid();
@@ -147,8 +151,9 @@ namespace TTicket.WebApi.Controllers
                 if (!provider.TryGetContentType(targetPath, out var contentType))
                     contentType = "application/octet-stream";
 
-                var bytes = await System.IO.File.ReadAllBytesAsync(targetPath);
-                return File(bytes, contentType, Path.GetFileName(targetPath));
+                HttpContext.Response.ContentType = contentType;
+
+                return PhysicalFile(targetPath, contentType);
             }
             catch (Exception e)
             {
@@ -239,24 +244,17 @@ namespace TTicket.WebApi.Controllers
                 //Check image
                 if (dto.Image != null)
                 {
-                    if (!".png".Contains(Path.GetExtension(dto.Image.FileName).ToLower()))
-                        return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Bad Request" },
-                            ErrorCode.InvalidImageFormat,
-                            $"Only .png images are allowed, The user has been created with no image."));
-                    else
+                    var filesPath = GetFilesPath();
+
+                    if (!Directory.Exists(filesPath))
+                        Directory.CreateDirectory(filesPath);
+
+                    var fileName = GenerateFileName(user.Id, dto.Image);
+
+                    var targetPath = Path.Combine(filesPath, fileName);
+                    using (var stream = new FileStream(targetPath, FileMode.Create))
                     {
-                        var filesPath = GetFilesPath();
-
-                        if (!Directory.Exists(filesPath))
-                            Directory.CreateDirectory(filesPath);
-
-                        var fileName = GenerateFileName(user.Id);
-
-                        var targetPath = Path.Combine(filesPath, fileName);
-                        using (var stream = new FileStream(targetPath, FileMode.Create))
-                        {
-                            await dto.Image.CopyToAsync(stream);
-                        }
+                        await dto.Image.CopyToAsync(stream);
                     }
                 }
 
@@ -335,19 +333,19 @@ namespace TTicket.WebApi.Controllers
                         ErrorCode.UserNotFound,
                         $"Unable to delete the user becuase it does not exist"));
 
-                var filesPath = GetFilesPath();
+                //var filesPath = GetFilesPath();
 
-                if (!Directory.Exists(filesPath))
-                    Directory.CreateDirectory(filesPath);
+                //if (!Directory.Exists(filesPath))
+                //    Directory.CreateDirectory(filesPath);
 
-                var fileName = GenerateFileName(user.Id);
+                //var fileName = GenerateFileName(user.Id);
 
-                var targetPath = Path.Combine(filesPath, fileName);
+                //var targetPath = Path.Combine(filesPath, fileName);
 
-                if (System.IO.File.Exists(targetPath))
-                {
-                    System.IO.File.Delete(targetPath);
-                }
+                //if (System.IO.File.Exists(targetPath))
+                //{
+                //    System.IO.File.Delete(targetPath);
+                //}
 
                 var result = await _userManager.Delete(user);
                 return Ok(new Response<UserModel>(result, ErrorCode.NoError));
@@ -372,24 +370,31 @@ namespace TTicket.WebApi.Controllers
         }
 
         [NonAction]
-        private string GenerateFileName(Guid id)
+        private string GenerateFileName(Guid id, IFormFile file)
         {
-            var fileName = id.ToString() + ".png";
+            var extension = "." + file.FileName.Split('.').Last();
+
+            var fileName = id.ToString() + extension;
+
             return fileName;
         }
 
         [NonAction]
         private string GetUserImage(Guid id)
         {
-            var filePath = GetFilesPath();
+            string filesPath = GetFilesPath();
 
-            var imagePath = filePath + "\\" + id.ToString() + ".png";
-            if (!System.IO.File.Exists(imagePath))
+            string[] matchingFiles = Directory.GetFiles(filesPath, id.ToString()+"*");
+
+            if (matchingFiles.Length == 0)
             {
                 return string.Empty;
             }
 
-            return imagePath;
+            // Select the first matching file (you might want to handle multiple matches differently)
+            string filePath = matchingFiles[0];
+
+            return filePath;
         }
 
         

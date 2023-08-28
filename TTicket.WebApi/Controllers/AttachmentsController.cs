@@ -95,13 +95,13 @@ namespace TTicket.WebApi.Controllers
         }
 
         /// <summary>
-        /// Download the attachment
+        /// Download an attachment by its id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("DownloadAttachment/{id}")]
-        public async Task<IActionResult> DownloadAttachment(Guid id)
+        [HttpGet("DownloadAttachmentById/{id}")]
+        public async Task<IActionResult> DownloadAttachmentById(Guid id)
         {
             try
             {
@@ -129,6 +129,45 @@ namespace TTicket.WebApi.Controllers
                     ErrorCode.LoggedError, e.Message));
             }
         }
+
+
+        /// <summary>
+        /// Download an attachment by its file name
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        //[Authorize]
+        [HttpGet("DownloadAttachmentByName/{fileName}")]
+        public async Task<IActionResult> DownloadAttachmentByName(string fileName)
+        {
+            try
+            {
+                //if (string.IsNullOrEmpty(HttpContext.Session.GetString("authModel")))
+                //    return Forbid();
+
+                var attachment = await _attachmentManager.GetByFileName(fileName);
+                if (attachment == null)
+                    return NotFound(new Response<ErrorModel>(new ErrorModel { Message = "Not Found" },
+                        ErrorCode.AttachmentNotFound,
+                        $"No attachment was found"));
+
+                var targetPath = Path.Combine(GetFilesPath(attachment.AttachedToId), attachment.FileName);
+                var provider = new FileExtensionContentTypeProvider();
+                if (!provider.TryGetContentType(targetPath, out var contentType))
+                    contentType = "application/octet-stream";
+               
+                HttpContext.Response.ContentType = contentType;
+
+                return PhysicalFile(targetPath, contentType);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "An Error Occured In Controller.");
+                return BadRequest(new Response<ErrorModel>(new ErrorModel { Message = "Logged Error" },
+                    ErrorCode.LoggedError, e.Message));
+            }
+        }
+
 
         /// <summary>
         /// Upload (add) attachment to a ticket of a comment
